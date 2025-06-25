@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { 
   Users as UsersIcon, 
   Search, 
@@ -237,26 +238,49 @@ export const Users: React.FC = () => {
 
       if (error) throw error;
 
-      // שליחת מייל הזמנה דרך Supabase Auth
-      const { error: authError } = await supabase.auth.admin.inviteUserByEmail(
-        userData.email,
-        {
-          data: {
-            full_name: userData.full_name,
-            role: userData.role,
-            phone: userData.phone,
-            company: userData.company,
-            invitation_id: data
-          },
-          redirectTo: `${window.location.origin}/signup-invitation?invitation=${data}`
+      // שליחת מייל הזמנה דרך Supabase Auth עם Service Role Key
+      try {
+        // יצירת admin client עם service role key
+        const adminSupabase = createClient(
+          import.meta.env.VITE_SUPABASE_URL!,
+          import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY!, // Service Role Key חדש
+          {
+            auth: {
+              autoRefreshToken: false,
+              persistSession: false
+            }
+          }
+        );
+
+        const { error: supabaseEmailError } = await adminSupabase.auth.admin.inviteUserByEmail(
+          userData.email,
+          {
+            data: {
+              invitation_id: data,
+              full_name: userData.full_name,
+              role: userData.role,
+              phone: userData.phone,
+              company: userData.company,
+              invited_by: currentUser?.full_name || currentUser?.email,
+              message: `ברוכים הבאים למערכת ניהול השיווק של נדל"ן! אתם מוזמנים להצטרף כ${getRoleText(userData.role)}.`
+            },
+            redirectTo: `${window.location.origin}/signup-invitation?invitation=${data}`
+          }
+        );
+
+        if (supabaseEmailError) {
+          throw supabaseEmailError;
         }
-      );
 
-      if (authError) {
-        // גם אם שליחת המייל נכשלה, ההזמנה נוצרה
+        toast.success('הזמנה נשלחה בהצלחה באימייל! 📧');
+      } catch (emailError) {
+        console.warn('שליחת אימייל נכשלה:', emailError);
+        // Fallback - קישור ידני
+        const invitationUrl = `${window.location.origin}/signup-invitation?invitation=${data}`;
+        navigator.clipboard.writeText(invitationUrl);
+        toast.success('הזמנה נוצרה! הקישור הועתק ללוח - שלחו אותו למוזמן');
+        console.log('Invitation URL:', invitationUrl);
       }
-
-      toast.success('הזמנה נשלחה בהצלחה!');
       setShowForm(false);
       fetchInvitations();
     } catch (error: any) {
@@ -284,25 +308,46 @@ export const Users: React.FC = () => {
   // פונקציה לשליחה מחדש של הזמנה
   const handleResendInvitation = async (invitation: any) => {
     try {
-      const { error } = await supabase.auth.admin.inviteUserByEmail(
-        invitation.email,
-        {
-          data: {
-            full_name: invitation.user_details?.full_name,
-            role: invitation.invited_to_role,
-            phone: invitation.user_details?.phone,
-            company: invitation.user_details?.company,
-            invitation_id: invitation.id
-          },
-          redirectTo: `${window.location.origin}/signup-invitation?invitation=${invitation.invitation_token}`
-        }
-      );
+      // עדכון תאריך תפוגה של ההזמנה
+      const { error } = await supabase
+        .rpc('extend_invitation_expiry', { 
+          p_invitation_id: invitation.id,
+          p_days: 7
+        });
 
       if (error) throw error;
 
-      toast.success('ההזמנה נשלחה מחדש בהצלחה');
+      // שליחה מחדש של מייל ההזמנה
+      const { error: emailError } = await supabase.rpc('send_user_invitation_email', {
+        p_invitation_id: invitation.id,
+        p_email: invitation.email,
+        p_redirect_url: `${window.location.origin}/signup-invitation?invitation=${invitation.invitation_token}`,
+        p_email_data: {
+          full_name: invitation.user_details?.full_name,
+          role: invitation.invited_to_role,
+          phone: invitation.user_details?.phone,
+          company: invitation.user_details?.company,
+          invited_by: currentUser?.full_name || currentUser?.email,
+          message: `שליחה מחדש - ברוכים הבאים למערכת ניהול השיווק של נדל"ן!`
+        }
+      });
+
+      if (emailError) {
+        console.warn('שליחת אימייל נכשלה:', emailError);
+        // Fallback - העתקת הקישור
+        const invitationUrl = `${window.location.origin}/signup-invitation?invitation=${invitation.invitation_token}`;
+        navigator.clipboard.writeText(invitationUrl);
+        toast.success('תוקף ההזמנה הוארך, הקישור הועתק ללוח');
+      } else {
+        toast.success('ההזמנה נשלחה מחדש בהצלחה באימייל! 📧');
+      }
+      
+      fetchInvitations();
     } catch (error: any) {
-      toast.error('שגיאה בשליחה מחדש של ההזמנה');
+      // Fallback - רק העתקת הקישור
+      const invitationUrl = `${window.location.origin}/signup-invitation?invitation=${invitation.invitation_token}`;
+      navigator.clipboard.writeText(invitationUrl);
+      toast.success('קישור ההזמנה הועתק ללוח');
     }
   };
 

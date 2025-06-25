@@ -44,6 +44,7 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isProcessingAuth, setIsProcessingAuth] = useState(false);
 
   // Debug: Track user changes
   useEffect(() => {
@@ -53,7 +54,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        console.log('Initializing auth...');
+        if (import.meta.env.DEV) console.log('Initializing auth...');
         
         // First try to get session quickly (3 seconds)
         const quickTimeoutPromise = new Promise((_, reject) => 
@@ -75,7 +76,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         
         if (error) {
-          console.error('Session error:', error);
+          if (import.meta.env.DEV) console.error('Session error:', error);
           setLoading(false);
           return;
         }
@@ -83,7 +84,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (session?.user) {
           await fetchUserProfile(session.user);
         } else {
-          console.log('No session found');
+          if (import.meta.env.DEV) console.log('No session found');
         }
       } catch (error) {
         console.error('Auth initialization error:', error);
@@ -95,7 +96,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state change:', event);
+      if (import.meta.env.DEV) console.log('Auth state change:', event);
       if (event === 'SIGNED_IN' && session?.user) {
         await fetchUserProfile(session.user);
       } else if (event === 'SIGNED_OUT') {
@@ -113,10 +114,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const fetchUserProfile = async (authUser: User) => {
-    console.log('Fetching user profile for:', authUser.email);
+    if (isProcessingAuth) return; // מניעת עיבוד כפול
+    setIsProcessingAuth(true);
+    
+    if (import.meta.env.DEV) console.log('Fetching user profile for:', authUser.email);
     
     try {
-      console.log('User profile data:', authUser);
+      if (import.meta.env.DEV) console.log('User profile data:', authUser);
       
       // Special case for super admin - avoid RLS issues for now
       if (authUser.email === 'triroars@gmail.com') {
@@ -128,11 +132,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           phone: undefined
         };
 
-        console.log('Super admin user created:', {
-          email: enhancedUser.email, 
-          role: enhancedUser.user_role,
-          full_name: enhancedUser.full_name 
-        });
+        if (import.meta.env.DEV) {
+          console.log('Super admin user created:', {
+            email: enhancedUser.email, 
+            role: enhancedUser.user_role,
+            full_name: enhancedUser.full_name 
+          });
+        }
 
         setUser(enhancedUser);
         return;
@@ -143,9 +149,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const { data: isAdmin, error: rpcError } = await supabase.rpc('is_super_admin');
         
         if (rpcError) {
-          console.log('RPC error:', rpcError);
+          if (import.meta.env.DEV) console.log('RPC error:', rpcError);
         } else {
-          console.log('Is admin check result:', isAdmin);
+          if (import.meta.env.DEV) console.log('Is admin check result:', isAdmin);
           
           if (isAdmin) {
             const enhancedUser: AuthUser = {
@@ -171,6 +177,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Profile fetch error:', error);
       // Always provide fallback user
       setUser(authUser as AuthUser);
+    } finally {
+      setIsProcessingAuth(false);
     }
   };
 

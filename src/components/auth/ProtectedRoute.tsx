@@ -23,15 +23,18 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const { user, loading, hasAccess } = useAuth();
   const location = useLocation();
 
-  console.log('ProtectedRoute check:', {
-    path: location.pathname,
-    userEmail: user?.email,
-    userRole: user?.user_role,
-    loading,
-    requiredRole,
-    resource,
-    resourceId
-  });
+  // Debug only in development
+  if (import.meta.env.DEV) {
+    console.log('ProtectedRoute check:', {
+      path: location.pathname,
+      userEmail: user?.email,
+      userRole: user?.user_role,
+      loading,
+      requiredRole,
+      resource,
+      resourceId
+    });
+  }
 
   if (loading) {
     // Use custom fallback if provided, otherwise use default
