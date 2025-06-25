@@ -270,7 +270,7 @@
 
             <!-- Call to Action -->
             <div style="text-align: center;">
-                <a href="{{ .SiteURL }}/signup-invitation?invitation={{ .TokenHash }}" class="cta-button">
+                <a href="{{ .SiteURL }}/signup-invitation?invitation={{ .TokenHash | urlquery }}" class="cta-button">
                     🚀 השלימו את ההרשמה
                 </a>
             </div>
