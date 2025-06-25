@@ -264,7 +264,7 @@ export const Users: React.FC = () => {
               invited_by: currentUser?.full_name || currentUser?.email,
               message: `ברוכים הבאים למערכת ניהול השיווק של נדל"ן! אתם מוזמנים להצטרף כ${getRoleText(userData.role)}.`
             },
-            redirectTo: `${window.location.origin}/signup-invitation?invitation=${data}`
+            redirectTo: `${window.location.origin}/signup-invitation?invitation=${encodeURIComponent(data)}`
           }
         );
 
@@ -276,7 +276,7 @@ export const Users: React.FC = () => {
       } catch (emailError) {
         console.warn('שליחת אימייל נכשלה:', emailError);
         // Fallback - קישור ידני
-        const invitationUrl = `${window.location.origin}/signup-invitation?invitation=${data}`;
+        const invitationUrl = `${window.location.origin}/signup-invitation?invitation=${encodeURIComponent(data)}`;
         navigator.clipboard.writeText(invitationUrl);
         toast.success('הזמנה נוצרה! הקישור הועתק ללוח - שלחו אותו למוזמן');
         console.log('Invitation URL:', invitationUrl);
@@ -321,7 +321,7 @@ export const Users: React.FC = () => {
       const { error: emailError } = await supabase.rpc('send_user_invitation_email', {
         p_invitation_id: invitation.id,
         p_email: invitation.email,
-        p_redirect_url: `${window.location.origin}/signup-invitation?invitation=${invitation.invitation_token}`,
+        p_redirect_url: `${window.location.origin}/signup-invitation?invitation=${encodeURIComponent(invitation.invitation_token)}`,
         p_email_data: {
           full_name: invitation.user_details?.full_name,
           role: invitation.invited_to_role,
@@ -335,8 +335,8 @@ export const Users: React.FC = () => {
       if (emailError) {
         console.warn('שליחת אימייל נכשלה:', emailError);
         // Fallback - העתקת הקישור
-        const invitationUrl = `${window.location.origin}/signup-invitation?invitation=${invitation.invitation_token}`;
-        navigator.clipboard.writeText(invitationUrl);
+            const invitationUrl = `${window.location.origin}/signup-invitation?invitation=${encodeURIComponent(invitation.invitation_token)}`;
+    navigator.clipboard.writeText(invitationUrl);
         toast.success('תוקף ההזמנה הוארך, הקישור הועתק ללוח');
       } else {
         toast.success('ההזמנה נשלחה מחדש בהצלחה באימייל! 📧');
@@ -345,7 +345,7 @@ export const Users: React.FC = () => {
       fetchInvitations();
     } catch (error: any) {
       // Fallback - רק העתקת הקישור
-      const invitationUrl = `${window.location.origin}/signup-invitation?invitation=${invitation.invitation_token}`;
+      const invitationUrl = `${window.location.origin}/signup-invitation?invitation=${encodeURIComponent(invitation.invitation_token)}`;
       navigator.clipboard.writeText(invitationUrl);
       toast.success('קישור ההזמנה הועתק ללוח');
     }

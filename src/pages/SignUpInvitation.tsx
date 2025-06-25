@@ -19,7 +19,7 @@ interface Invitation {
 export const SignUpInvitation: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const invitationToken = searchParams.get('invitation');
+  const invitationToken = searchParams.get('invitation') ? decodeURIComponent(searchParams.get('invitation')!) : null;
 
   const [invitation, setInvitation] = useState<Invitation | null>(null);
   const [isLoading, setIsLoading] = useState(true);
