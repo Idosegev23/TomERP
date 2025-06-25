@@ -93,6 +93,7 @@ export const Login: React.FC = () => {
                   placeholder="הזן כתובת אימייל"
                   required
                   disabled={isSubmitting}
+                  autoComplete="username"
                 />
                 <Mail className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
               </div>

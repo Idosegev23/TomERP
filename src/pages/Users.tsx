@@ -243,7 +243,7 @@ export const Users: React.FC = () => {
         // יצירת admin client עם service role key
         const adminSupabase = createClient(
           import.meta.env.VITE_SUPABASE_URL!,
-          import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY!, // Service Role Key חדש
+          import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY!, // Service Role Key מהסביבה
           {
             auth: {
               autoRefreshToken: false,
@@ -269,6 +269,7 @@ export const Users: React.FC = () => {
         );
 
         if (supabaseEmailError) {
+          console.warn('שליחת אימייל דרך Supabase נכשלה:', supabaseEmailError);
           throw supabaseEmailError;
         }
 

@@ -34,7 +34,10 @@ export default defineConfig({
   },
   server: {
     open: false,
-    strictPort: false
+    strictPort: false,
+    headers: {
+      'Content-Type': 'text/javascript'
+    }
   },
   optimizeDeps: {
     include: [
