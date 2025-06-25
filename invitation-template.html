@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>הזמנה למערכת ניהול שיווק נדל"ן</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+            margin: 0;
+            padding: 20px;
+            direction: rtl;
+            text-align: right;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .welcome-message {
+            background-color: #dbeafe;
+            border-right: 4px solid #3b82f6;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+
+        .welcome-message h2 {
+            color: #1e40af;
+            margin: 0 0 10px 0;
+            font-size: 20px;
+        }
+
+        .welcome-message p {
+            color: #1e3a8a;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .invitation-details {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: #374151;
+        }
+
+        .detail-value {
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .role-badge {
+            background-color: #10b981;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white !important;
+            text-decoration: none;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            text-align: center;
+            margin: 20px 0;
+            box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.39);
+            transition: all 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px 0 rgba(16, 185, 129, 0.4);
+        }
+
+        .instructions {
+            background-color: #fffbeb;
+            border: 1px solid #fbbf24;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .instructions h3 {
+            color: #92400e;
+            margin: 0 0 15px 0;
+            font-size: 18px;
+        }
+
+        .instructions ol {
+            color: #78350f;
+            line-height: 1.7;
+            margin: 0;
+            padding-right: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+        }
+
+        .security-notice {
+            background-color: #fef2f2;
+            border: 1px solid #fca5a5;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .security-notice h3 {
+            color: #dc2626;
+            margin: 0 0 10px 0;
+            font-size: 16px;
+        }
+
+        .security-notice p {
+            color: #991b1b;
+            margin: 0;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .footer {
+            background-color: #f1f5f9;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .footer p {
+            color: #64748b;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .company-logo {
+            width: 60px;
+            height: 60px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px auto;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .email-container {
+                margin: 0;
+                border-radius: 0;
+            }
+            
+            .content {
+                padding: 30px 20px;
+            }
+            
+            .header {
+                padding: 25px 20px;
+            }
+            
+            .cta-button {
+                display: block;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="company-logo">🏢</div>
+            <h1>ברוכים הבאים למערכת!</h1>
+            <p>מערכת ניהול שיווק נדל"ן מתקדמת</p>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Welcome Message -->
+            <div class="welcome-message">
+                <h2>🎉 הוזמנתם להצטרף אלינו!</h2>
+                <p>
+                    שלום {{ .Email }},<br>
+                    אתם מוזמנים להצטרף למערכת ניהול שיווק הנדל"ן המתקדמת שלנו.
+                    המערכת תאפשר לכם לנהל פרויקטים, לעקוב אחרי משימות ולשתף פעולה עם הצוות בצורה יעילה ומקצועית.
+                </p>
+            </div>
+
+            <!-- Invitation Details -->
+            <div class="invitation-details">
+                <div class="detail-item">
+                    <span class="detail-label">אימייל:</span>
+                    <span class="detail-value">{{ .Email }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">תפקיד במערכת:</span>
+                    <span class="role-badge">{{ .Data.role }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">הוזמן על ידי:</span>
+                    <span class="detail-value">{{ .Data.invited_by_name }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">ההזמנה תפוג ב:</span>
+                    <span class="detail-value">{{ .Data.expires_at }}</span>
+                </div>
+            </div>
+
+            <!-- Call to Action -->
+            <div style="text-align: center;">
+                <a href="{{ .SiteURL }}/signup-invitation?invitation={{ .TokenHash }}" class="cta-button">
+                    🚀 השלימו את ההרשמה
+                </a>
+            </div>
+
+            <!-- Instructions -->
+            <div class="instructions">
+                <h3>📋 שלבי ההרשמה:</h3>
+                <ol>
+                    <li>לחצו על הכפתור "השלימו את ההרשמה" למעלה</li>
+                    <li>השלימו את הפרטים האישיים שלכם</li>
+                    <li>בחרו סיסמה חזקה (לפחות 8 תווים)</li>
+                    <li>לחצו "צור חשבון והצטרף למערכת"</li>
+                    <li>תועברו אוטומטית למערכת ותוכלו להתחיל לעבוד!</li>
+                </ol>
+            </div>
+
+            <!-- Personal Message (if exists) -->
+            {{ if .Data.message }}
+            <div class="welcome-message">
+                <h2>💬 הודעה אישית:</h2>
+                <p style="font-style: italic; border-right: 3px solid #3b82f6; padding-right: 15px;">
+                    "{{ .Data.message }}"
+                </p>
+            </div>
+            {{ end }}
+
+            <!-- Security Notice -->
+            <div class="security-notice">
+                <h3>🔐 הודעת אבטחה חשובה</h3>
+                <p>
+                    <strong>• קישור זה תקף למשך 48 שעות בלבד</strong><br>
+                    • לא תעבירו קישור זה לאנשים אחרים<br>
+                    • אם לא ביקשתם הזמנה זו, אנא התעלמו ממייל זה<br>
+                    • במקרה של בעיה, צרו קשר עם מנהל המערכת
+                </p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>מערכת ניהול שיווק נדל"ן</strong></p>
+            <p>פתרון טכנולוגי מתקדם לניהול פרויקטי נדל"ן</p>
+            <p>
+                <a href="{{ .SiteURL }}">{{ .SiteURL }}</a> |
+                <a href="mailto:support@example.com">תמיכה טכנית</a>
+            </p>
+            <p style="margin-top: 20px; font-size: 12px; color: #9ca3af;">
+                מייל זה נשלח אוטומטית ממערכת ניהול שיווק הנדל"ן.<br>
+                אנא אל תשיבו ישירות למייל זה.
+            </p>
+        </div>
+    </div>
+</body>
+</html> 

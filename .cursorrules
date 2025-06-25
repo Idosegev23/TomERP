@@ -1,0 +1,157 @@
+# Project Intelligence - ניהול שיווק נדל"ן
+
+## 🎯 פרויקט Overview
+מערכת ניהול שיווק נדל"ן מתקדמת עם React + TypeScript + Supabase
+
+## 🔧 Stack טכנולוגי מוכח
+- **Frontend**: React 18 + TypeScript + Vite
+- **Styling**: TailwindCSS v3 (v4 לא יציב!)
+- **Backend**: Supabase (DB + Auth + Storage)
+- **State**: Zustand + custom hooks
+- **Drag & Drop**: @dnd-kit/core + @dnd-kit/sortable
+- **Notifications**: react-hot-toast
+- **Icons**: Lucide React
+- **i18n**: i18next עם RTL support
+
+## 🏗️ ארכיטקטורה מוכחת
+
+### מבנה התיקיות
+```
+src/
+  components/
+    tasks/          # רכיבי משימות
+    ui/            # רכיבי UI בסיסיים
+  hooks/           # custom hooks
+  lib/             # utilities (supabase)
+  pages/           # דפי אפליקציה
+  types/           # TypeScript types
+```
+
+### דפוסי עיצוב מרכזיים
+1. **Feature-based organization**: קבצים מקובצים לפי תכונה
+2. **Custom hooks**: לוגיקה עסקית מופרדת ברכיבים
+3. **TypeScript strict**: types מלאים לכל
+4. **RTL-first**: תמיכה מלאה בעברית
+
+## 🎨 עקרונות UI/UX
+
+### RTL Support
+- כל הטקסטים בעברית
+- `dir="rtl"` ב-HTML
+- `text-right` כdefault
+- פוקוס על תמיכה במובייל
+
+### מערכת צבעים
+- כחול: #3B82F6 (primary)
+- ירוק: הצלחה/השלמה
+- כתום: המתנה/אישור  
+- אדום: ביטול/שגיאה
+- אפור: נייטרלי/טיוטה
+
+## 🚀 תכונות מוכחות
+
+### 1. מערכת קנבן מתקדמת
+- **@dnd-kit**: drag & drop מתקדם
+- **3 תצוגות**: עץ, גאנט, קנבן
+- **React.memo**: למניעת re-renders
+- **useMemo/useCallback**: ברמה העליונה בלבד!
+
+### בעיות שנמנעו בקנבן:
+❌ **אין לשים hooks בתוך functions!**
+```javascript
+// ❌ לא כך:
+const renderKanbanView = () => {
+  const statusColumns = useMemo(...) // זה גורם לcrash!
+}
+
+// ✅ כך:
+const Component = () => {
+  const statusColumns = useMemo(...) // ברמה העליונה
+  
+  const renderKanbanView = () => { ... }
+}
+```
+
+❌ **collision detection**: `closestCorners` לא מתאים לקנבן
+✅ **מומלץ**: `pointerWithin` לקנבן
+
+### 2. מערכת משימות היררכית
+- **parent_task_id**: תמיכה ברמות אינסופיות
+- **progress tracking**: חישוב אוטומטי מתתי משימות
+- **inline editing**: עריכה ישירה בתצוגה
+
+### 3. Supabase Integration
+- **RLS policies**: אבטחה ברמת שורה
+- **Real-time**: subscriptions לעדכונים חיים
+- **Storage**: קבצים מאורגנים בbuckets
+
+## 🐛 בעיות ידועות ופתרונות
+
+### 1. TailwindCSS
+❌ **v4 לא יציב** - גורם לשגיאות build
+✅ **v3 מומלץ** - יציב ועובד מעולה
+
+### 2. React Hooks
+❌ **hooks בfunctions** - גורם ל"hooks order" errors
+✅ **hooks ברמה העליונה** - תמיד!
+
+### 3. Database Debugging
+```javascript
+// ✅ תמיד הוסף .select() לקבלת פירוט שגיאות:
+const { data, error } = await supabase
+  .from('table')
+  .update(...)
+  .select(); // 👈 חשוב!
+
+if (error) {
+  console.error('Details:', {
+    message: error.message,
+    code: error.code,
+    details: error.details
+  });
+}
+```
+
+## 📋 Workflows מוכחים
+
+### טפל בגרירה וזרקה (Drag & Drop)
+1. הגדר DndContext עם sensors נכונים
+2. השתמש ב-pointerWithin לקנבן
+3. שים React.memo על רכיבי drag/drop
+4. החזק hooks ברמה העליונה
+5. הוסף logging מפורט
+
+### עבודה עם Supabase
+1. תמיד בדוק .select() לשגיאות
+2. תמיד בדוק RLS policies
+3. השתמש ב-custom hooks לlogic
+4. הוסף proper error handling
+
+### בניית רכיבים
+1. TypeScript types תמיד
+2. RTL support מתחילת הדרך
+3. React.memo לביצועים
+4. Custom hooks לlogic מורכב
+
+## 🎯 דברים שעובדים מעולה
+- ✅ דף יזמים: CRUD מלא
+- ✅ דף פרויקטים: עם משימות
+- ✅ לוח קנבן: UI מעולה
+- ✅ inline editing: עובד חלק
+- ✅ RTL support: מושלם
+
+## 🔄 דברים בעבודה
+- 🔧 קנבן DB update: שגיאה 400
+- 🔧 debug Supabase integration
+
+## 🚀 הצעדים הבאים המוכחים
+1. פתור בעיית DB update בקנבן
+2. בנה דפי בניינים/קומות/דירות
+3. הוסף file upload
+4. מערכת הרשאות
+
+## 💡 טיפים למפתח
+- השתמש ב-console.log מפורט לdebugging
+- תמיד בדוק Memory Bank לפני עבודה
+- בעיות קנבן: בדוק hooks order ראשון
+- Supabase errors: הוסף .select() תמיד 

@@ -1,0 +1,219 @@
+{
+  "common": {
+    "save": "שמור",
+    "cancel": "בטל", 
+    "delete": "מחק",
+    "edit": "ערוך",
+    "create": "צור",
+    "search": "חפש",
+    "filter": "סנן",
+    "loading": "טוען...",
+    "error": "שגיאה",
+    "success": "הצלחה",
+    "confirm": "אשר",
+    "back": "חזור",
+    "next": "הבא",
+    "previous": "הקודם",
+    "close": "סגור",
+    "select": "בחר",
+    "actions": "פעולות",
+    "status": "סטטוס",
+    "date": "תאריך",
+    "name": "שם",
+    "description": "תיאור",
+    "type": "סוג",
+    "priority": "עדיפות",
+    "assignee": "אחראי"
+  },
+  
+  "navigation": {
+    "dashboard": "דשבורד",
+    "developers": "יזמים",
+    "projects": "פרויקטים", 
+    "buildings": "בניינים",
+    "floors": "קומות",
+    "units": "דירות",
+    "tasks": "משימות",
+    "documents": "מסמכים",
+    "analytics": "תובנות",
+    "settings": "הגדרות",
+    "profile": "פרופיל",
+    "logout": "התנתק",
+    "users": "משתמשים"
+  },
+  
+  "auth": {
+    "login": "התחבר",
+    "email": "אימייל",
+    "password": "סיסמה",
+    "forgotPassword": "שכחת סיסמה?",
+    "loginError": "שגיאה בהתחברות",
+    "invalidCredentials": "פרטי התחברות שגויים"
+  },
+  
+  "developers": {
+    "title": "ניהול יזמים",
+    "createDeveloper": "צור יזם חדש",
+    "name": "שם היזם",
+    "email": "אימייל",
+    "phone": "טלפון",
+    "projects": "פרויקטים",
+    "projectsCount": "{{count}} פרויקטים"
+  },
+  
+  "projects": {
+    "title": "ניהול פרויקטים",
+    "createProject": "צור פרויקט חדש",
+    "name": "שם הפרויקט",
+    "address": "כתובת",
+    "city": "עיר",
+    "description": "תיאור",
+    "status": "סטטוס",
+    "startDate": "תאריך התחלה",
+    "endDate": "תאריך סיום",
+    "buildings": "בניינים",
+    "buildingsCount": "{{count}} בניינים",
+    "statuses": {
+      "planning": "בתכנון",
+      "in_construction": "בבנייה", 
+      "marketing": "בשיווק",
+      "completed": "הושלם"
+    }
+  },
+  
+  "buildings": {
+    "title": "ניהול בניינים",
+    "createBuilding": "צור בניין חדש",
+    "name": "שם הבניין",
+    "floorsCount": "מספר קומות",
+    "floors": "קומות",
+    "units": "דירות",
+    "unitsCount": "{{count}} דירות"
+  },
+  
+  "floors": {
+    "title": "ניהול קומות",
+    "createFloor": "צור קומה חדשה",
+    "number": "מספר קומה",
+    "unitsCount": "מספר דירות",
+    "units": "דירות"
+  },
+  
+  "units": {
+    "title": "ניהול דירות",
+    "createUnit": "צור דירה חדשה",
+    "number": "מספר דירה",
+    "floor": "קומה",
+    "builtArea": "שטח בנוי",
+    "gardenArea": "שטח גינה",
+    "balconyArea": "שטח מרפסת",
+    "roomsCount": "מספר חדרים",
+    "unitType": "סוג דירה",
+    "directions": "כיווני אוויר",
+    "isFrontFacing": "חזית/עורף",
+    "parkingSpots": "חניות",
+    "storageRooms": "מחסנים",
+    "marketingPrice": "מחיר שיווקי",
+    "linearPrice": "מחיר לינארי",
+    "price2080": "מחיר 20/80",
+    "buyer": "רוכש",
+    "salesAgent": "איש מכירות",
+    "entryDate": "תאריך כניסה",
+    
+    "types": {
+      "regular": "רגילה",
+      "garden": "גן",
+      "penthouse": "פנטהאוז",
+      "duplex": "דופלקס",
+      "studio": "סטודיו"
+    },
+    
+    "statuses": {
+      "available": "פנויה",
+      "reserved": "בהרשמה", 
+      "sold": "נמכרה",
+      "frozen": "מוקפאת"
+    },
+    
+    "filters": {
+      "allStatuses": "כל הסטטוסים",
+      "allTypes": "כל הסוגים",
+      "priceRange": "טווח מחירים",
+      "roomsRange": "טווח חדרים"
+    }
+  },
+  
+  "tasks": {
+    "title": "ניהול משימות",
+    "createTask": "צור משימה חדשה",
+    "title_field": "כותרת",
+    "description": "תיאור",
+    "priority": "עדיפות",
+    "category": "קטגוריה",
+    "assignee": "אחראי",
+    "dueDate": "תאריך יעד",
+    "subtasks": "תת-משימות",
+    "addSubtask": "הוסף תת-משימה",
+    
+    "statuses": {
+      "draft": "טיוטה",
+      "todo": "פתוחה",
+      "in_progress": "בתהליך",
+      "waiting_approval": "ממתינה לאישור",
+      "done": "הושלמה",
+      "cancelled": "בוטלה"
+    },
+    
+    "priorities": {
+      "low": "נמוכה",
+      "medium": "בינונית",
+      "high": "גבוהה", 
+      "urgent": "דחופה"
+    },
+    
+    "categories": {
+      "technical": "טכנית",
+      "marketing": "שיווקית",
+      "sales": "מכירה",
+      "approvals": "אישורים",
+      "administrative": "אדמיניסטרטיבית"
+    }
+  },
+  
+  "documents": {
+    "title": "ניהול מסמכים",
+    "uploadDocument": "העלה מסמך",
+    "fileName": "שם קובץ",
+    "fileSize": "גודל קובץ",
+    "fileType": "סוג קובץ",
+    "version": "גרסה",
+    "uploadedBy": "הועלה על ידי",
+    "uploadDate": "תאריך העלאה",
+    "tags": "תגיות",
+    "download": "הורד",
+    "preview": "תצוגה מקדימה",
+    
+    "types": {
+      "floor_plan": "תוכנית קומה",
+      "specification": "מפרט",
+      "marketing_material": "חומר שיווקי",
+      "legal_document": "מסמך משפטי",
+      "contract": "חוזה",
+      "visualization": "הדמיה",
+      "other": "אחר"
+    }
+  },
+  
+  "messages": {
+    "saveSuccess": "נשמר בהצלחה",
+    "saveError": "שגיאה בשמירה",
+    "deleteSuccess": "נמחק בהצלחה", 
+    "deleteError": "שגיאה במחיקה",
+    "deleteConfirm": "האם אתה בטוח שברצונך למחוק?",
+    "uploadSuccess": "הקובץ הועלה בהצלחה",
+    "uploadError": "שגיאה בהעלאת הקובץ",
+    "requiredField": "שדה זה הוא חובה",
+    "invalidEmail": "כתובת אימייל לא תקינה",
+    "passwordTooShort": "הסיסמה קצרה מדי"
+  }
+} 
