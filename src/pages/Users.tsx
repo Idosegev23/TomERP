@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { createClient } from '@supabase/supabase-js';
 import { 
   Users as UsersIcon, 
   Search, 
@@ -260,39 +259,26 @@ export const Users: React.FC = () => {
 
       console.log('Invitation Token:', invitationToken);
 
-      // שליחת מייל הזמנה דרך Supabase Auth עם Service Role Key
+      // שליחת מייל הזמנה דרך RPC function מותאם (לא יוצר משתמש אוטומטית)
       try {
-        // יצירת admin client עם service role key
-        const adminSupabase = createClient(
-          import.meta.env.VITE_SUPABASE_URL!,
-          import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY!, // Service Role Key מהסביבה
-          {
-            auth: {
-              autoRefreshToken: false,
-              persistSession: false
-            }
+        const { error: emailError } = await supabase.rpc('send_user_invitation_email', {
+          p_invitation_id: data, // זה ה-invitation_id שחזר מ-create_invitation
+          p_email: userData.email,
+          p_redirect_url: `${window.location.origin}/signup-invitation?invitation=${encodeURIComponent(invitationToken)}`,
+          p_email_data: {
+            full_name: userData.full_name,
+            role: userData.role,
+            phone: userData.phone,
+            company: userData.company,
+            invited_by: currentUser?.full_name || currentUser?.email,
+            message: `ברוכים הבאים למערכת ניהול השיווק של נדל"ן! אתם מוזמנים להצטרף כ${getRoleText(userData.role)}.`,
+            custom_invitation_token: invitationToken
           }
-        );
+        });
 
-        const { error: supabaseEmailError } = await adminSupabase.auth.admin.inviteUserByEmail(
-          userData.email,
-          {
-            data: {
-              full_name: userData.full_name,
-              role: userData.role,
-              phone: userData.phone,
-              company: userData.company,
-              invited_by: currentUser?.full_name || currentUser?.email,
-              message: `ברוכים הבאים למערכת ניהול השיווק של נדל"ן! אתם מוזמנים להצטרף כ${getRoleText(userData.role)}.`,
-              custom_invitation_token: invitationToken
-            },
-            redirectTo: `${window.location.origin}/signup-invitation?invitation=${encodeURIComponent(invitationToken)}`
-          }
-        );
-
-        if (supabaseEmailError) {
-          console.warn('שליחת אימייל דרך Supabase נכשלה:', supabaseEmailError);
-          throw supabaseEmailError;
+        if (emailError) {
+          console.warn('שליחת אימייל דרך RPC נכשלה:', emailError);
+          throw emailError;
         }
 
         toast.success('הזמנה נשלחה בהצלחה באימייל! 📧');
@@ -342,38 +328,26 @@ export const Users: React.FC = () => {
 
       console.log('Resending invitation with token:', invitation.invitation_token);
 
-      // שליחה מחדש של מייל ההזמנה דרך Supabase Auth
+            // שליחה מחדש של מייל ההזמנה דרך RPC function מותאם
       try {
-        const adminSupabase = createClient(
-          import.meta.env.VITE_SUPABASE_URL!,
-          import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY!,
-          {
-            auth: {
-              autoRefreshToken: false,
-              persistSession: false
-            }
+        const { error: emailError } = await supabase.rpc('send_user_invitation_email', {
+          p_invitation_id: invitation.id,
+          p_email: invitation.email,
+          p_redirect_url: `${window.location.origin}/signup-invitation?invitation=${encodeURIComponent(invitation.invitation_token)}`,
+          p_email_data: {
+            full_name: invitation.user_details?.full_name,
+            role: invitation.invited_to_role,
+            phone: invitation.user_details?.phone,
+            company: invitation.user_details?.company,
+            invited_by: currentUser?.full_name || currentUser?.email,
+            message: `שליחה מחדש - ברוכים הבאים למערכת ניהול השיווק של נדל"ן!`,
+            custom_invitation_token: invitation.invitation_token
           }
-        );
+        });
 
-                 const { error: supabaseEmailError } = await adminSupabase.auth.admin.inviteUserByEmail(
-           invitation.email,
-           {
-             data: {
-               full_name: invitation.user_details?.full_name,
-               role: invitation.invited_to_role,
-               phone: invitation.user_details?.phone,
-               company: invitation.user_details?.company,
-               invited_by: currentUser?.full_name || currentUser?.email,
-               message: `שליחה מחדש - ברוכים הבאים למערכת ניהול השיווק של נדל"ן!`,
-               custom_invitation_token: invitation.invitation_token
-             },
-             redirectTo: `${window.location.origin}/signup-invitation?invitation=${encodeURIComponent(invitation.invitation_token)}`
-           }
-         );
-
-        if (supabaseEmailError) {
-          console.warn('שליחת אימייל דרך Supabase נכשלה:', supabaseEmailError);
-          throw supabaseEmailError;
+        if (emailError) {
+          console.warn('שליחת אימייל דרך RPC נכשלה:', emailError);
+          throw emailError;
         }
 
         toast.success('ההזמנה נשלחה מחדש בהצלחה באימייל! 📧');
