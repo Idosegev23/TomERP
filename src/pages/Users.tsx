@@ -21,7 +21,8 @@ import {
   Building2,
   Building,
   TreePine,
-  Layers
+  Layers,
+  X
 } from 'lucide-react';
 import { Card, CardHeader, CardContent, Button } from '../components/ui';
 import { useAuth } from '../components/auth/AuthContext';
@@ -389,10 +390,20 @@ const HierarchicalInviteForm: React.FC<{
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
-          <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-            <Mail className="h-6 w-6 text-blue-600" />
-            הזמנת משתמש חדש עם שיוך היררכי
-          </h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold flex items-center gap-2">
+              <Mail className="h-6 w-6 text-blue-600" />
+              הזמנת משתמש חדש עם שיוך היררכי
+            </h2>
+            <button
+              type="button"
+              onClick={onCancel}
+              className="text-gray-500 hover:text-gray-700 p-2 hover:bg-gray-100 rounded-full transition-colors"
+              title="סגור"
+            >
+              <X className="h-6 w-6" />
+            </button>
+          </div>
           
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Info */}
@@ -447,6 +458,32 @@ const HierarchicalInviteForm: React.FC<{
                       <option value="viewer">צופה</option>
                       <option value="external_marketing">שיווק חיצוני</option>
                     </select>
+                    
+                    {/* Role Description */}
+                    <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <p className="text-sm text-blue-800 font-medium mb-1">
+                        {formData.role === 'super_admin' && 'מנהל על - גישה מלאה לכל המערכת'}
+                        {formData.role === 'admin' && 'מנהל מערכת - גישה מלאה לכל המערכת'}
+                        {formData.role === 'developer' && 'יזם - צריך שיוך ליזם ספציפי'}
+                        {formData.role === 'developer_employee' && 'עובד יזם - צריך שיוך ליזם + פרויקטים + בניינים'}
+                        {formData.role === 'sales_agent' && 'איש מכירות - צריך שיוך מלא: יזם → פרויקטים → בניינים → קומות → דירות'}
+                        {formData.role === 'supplier' && 'ספק - צריך שיוך ליזם + פרויקטים'}
+                        {formData.role === 'lawyer' && 'עורך דין - גישה מוגבלת לעניינים משפטיים'}
+                        {formData.role === 'viewer' && 'צופה - גישת קריאה בלבד'}
+                        {formData.role === 'external_marketing' && 'שיווק חיצוני - גישה מוגבלת לכלי שיווק'}
+                      </p>
+                      <p className="text-xs text-blue-600">
+                        {formData.role === 'super_admin' && 'לא נדרש שיוך - גישה לכל הישויות'}
+                        {formData.role === 'admin' && 'לא נדרש שיוך - גישה לכל הישויות'}
+                        {formData.role === 'developer' && 'יראה ויוכל לנהל רק את הפרויקטים שלו'}
+                        {formData.role === 'developer_employee' && 'יראה רק את הבניינים שהוא משויך אליהם'}
+                        {formData.role === 'sales_agent' && 'יראה ויוכל למכור רק את הדירות שהוא משויך אליהן'}
+                        {formData.role === 'supplier' && 'יראה רק את הפרויקטים הרלוונטיים לשירותיו'}
+                        {formData.role === 'lawyer' && 'גישה למסמכים משפטיים ולהליכים רלוונטיים'}
+                        {formData.role === 'viewer' && 'יכול רק לצפות במידע ללא אפשרות עריכה'}
+                        {formData.role === 'external_marketing' && 'גישה לכלי שיווק ודוחות מכירות'}
+                      </p>
+                    </div>
                   </div>
 
                   <div>
@@ -490,7 +527,7 @@ const HierarchicalInviteForm: React.FC<{
             </Card>
 
             {/* Hierarchical Assignment */}
-            {(permissions.showDeveloper || permissions.showProject || permissions.showBuilding || permissions.showFloor || permissions.showUnit) && (
+            {(permissions.showDeveloper || permissions.showProject || permissions.showBuilding || permissions.showFloor || permissions.showUnit) ? (
               <Card>
                 <CardHeader>
                   <h3 className="text-lg font-semibold flex items-center gap-2">
@@ -644,19 +681,50 @@ const HierarchicalInviteForm: React.FC<{
                   </div>
                 </CardContent>
               </Card>
+            ) : (
+              <Card>
+                <CardContent>
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                      <Shield className="h-8 w-8 text-gray-400" />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                      לא נדרש שיוך היררכי
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      התפקיד שנבחר ({formData.role === 'super_admin' ? 'מנהל על' : 
+                      formData.role === 'admin' ? 'מנהל מערכת' : 
+                      formData.role === 'lawyer' ? 'עורך דין' : 
+                      formData.role === 'viewer' ? 'צופה' : 'שיווק חיצוני'}) מקבל גישה רחבה למערכת ללא צורך בשיוך ספציפי.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
             )}
 
-            <div className="flex justify-end gap-3 pt-4">
+            <div className="flex justify-between items-center pt-4">
               <Button
                 type="button"
                 variant="secondary"
                 onClick={onCancel}
+                className="flex items-center gap-2"
               >
-                ביטול
+                <X className="h-4 w-4" />
+                סגור
               </Button>
-              <Button type="submit" variant="primary">
-                שלח הזמנה
-              </Button>
+              <div className="flex gap-3">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={onCancel}
+                >
+                  ביטול
+                </Button>
+                <Button type="submit" variant="primary">
+                  <Mail className="h-4 w-4 mr-2" />
+                  שלח הזמנה
+                </Button>
+              </div>
             </div>
           </form>
         </div>
