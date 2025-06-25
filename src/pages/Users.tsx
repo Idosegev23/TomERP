@@ -278,13 +278,13 @@ export const Users: React.FC = () => {
           userData.email,
           {
             data: {
-              invitation_token: invitationToken,
               full_name: userData.full_name,
               role: userData.role,
               phone: userData.phone,
               company: userData.company,
               invited_by: currentUser?.full_name || currentUser?.email,
-              message: `ברוכים הבאים למערכת ניהול השיווק של נדל"ן! אתם מוזמנים להצטרף כ${getRoleText(userData.role)}.`
+              message: `ברוכים הבאים למערכת ניהול השיווק של נדל"ן! אתם מוזמנים להצטרף כ${getRoleText(userData.role)}.`,
+              custom_invitation_token: invitationToken
             },
             redirectTo: `${window.location.origin}/signup-invitation?invitation=${encodeURIComponent(invitationToken)}`
           }
@@ -355,21 +355,21 @@ export const Users: React.FC = () => {
           }
         );
 
-        const { error: supabaseEmailError } = await adminSupabase.auth.admin.inviteUserByEmail(
-          invitation.email,
-          {
-            data: {
-              invitation_token: invitation.invitation_token,
-              full_name: invitation.user_details?.full_name,
-              role: invitation.invited_to_role,
-              phone: invitation.user_details?.phone,
-              company: invitation.user_details?.company,
-              invited_by: currentUser?.full_name || currentUser?.email,
-              message: `שליחה מחדש - ברוכים הבאים למערכת ניהול השיווק של נדל"ן!`
-            },
-            redirectTo: `${window.location.origin}/signup-invitation?invitation=${encodeURIComponent(invitation.invitation_token)}`
-          }
-        );
+                 const { error: supabaseEmailError } = await adminSupabase.auth.admin.inviteUserByEmail(
+           invitation.email,
+           {
+             data: {
+               full_name: invitation.user_details?.full_name,
+               role: invitation.invited_to_role,
+               phone: invitation.user_details?.phone,
+               company: invitation.user_details?.company,
+               invited_by: currentUser?.full_name || currentUser?.email,
+               message: `שליחה מחדש - ברוכים הבאים למערכת ניהול השיווק של נדל"ן!`,
+               custom_invitation_token: invitation.invitation_token
+             },
+             redirectTo: `${window.location.origin}/signup-invitation?invitation=${encodeURIComponent(invitation.invitation_token)}`
+           }
+         );
 
         if (supabaseEmailError) {
           console.warn('שליחת אימייל דרך Supabase נכשלה:', supabaseEmailError);
