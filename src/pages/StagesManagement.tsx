@@ -199,13 +199,14 @@ export const StagesManagement: React.FC = () => {
         let filteredStages = stagesWithStats;
         if (filters.progress) {
           filteredStages = stagesWithStats.filter(stage => {
+            const progress = (stage as any).progress_percentage ?? 0;
             switch (filters.progress) {
               case 'completed':
-                return stage.progress_percentage === 100;
+                return progress === 100;
               case 'in_progress':
-                return stage.progress_percentage > 0 && stage.progress_percentage < 100;
+                return progress > 0 && progress < 100;
               case 'not_started':
-                return stage.progress_percentage === 0;
+                return progress === 0;
               default:
                 return true;
             }
@@ -411,7 +412,7 @@ export const StagesManagement: React.FC = () => {
                   <span className="text-sm font-medium text-gray-700">בתהליך</span>
                 </div>
                 <div className="text-xl font-bold text-orange-600">
-                  {stages.filter(stage => stage.progress_percentage > 0 && stage.progress_percentage < 100).length}
+                  {stages.filter(stage => (stage.progress_percentage ?? 0) > 0 && (stage.progress_percentage ?? 0) < 100).length}
                 </div>
               </div>
               

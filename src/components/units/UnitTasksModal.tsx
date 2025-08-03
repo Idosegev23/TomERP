@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import TaskFormModal from '../tasks/TaskFormModal';
-import { TaskDetailsModal } from '../tasks';
+// import { TaskDetailsModal } from '../tasks';
 
 interface UnitTasksModalProps {
   isOpen: boolean;
@@ -404,14 +404,14 @@ export const UnitTasksModal: React.FC<UnitTasksModalProps> = ({
         )}
 
         {/* Task Details Modal */}
-        {showTaskDetails && selectedTaskId && (
+        {/* {showTaskDetails && selectedTaskId && (
           <TaskDetailsModal
             isOpen={showTaskDetails}
             onClose={handleTaskDetailsClose}
             taskId={selectedTaskId}
             onTaskUpdated={loadTasks}
           />
-        )}
+        )} */}
       </div>
     </div>
   );

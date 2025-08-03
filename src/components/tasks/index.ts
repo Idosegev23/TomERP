@@ -1,2 +1,2 @@
-export { TaskViews } from './TaskViews';
+export { default as TaskViews } from './TaskViews';
 export { TaskEditModal } from './TaskEditModal';

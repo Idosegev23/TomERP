@@ -172,14 +172,14 @@ export const FloorDocumentsManager: React.FC<FloorDocumentsManagerProps> = ({
 
     // Determine file type and category
     const mimeType = file.type;
-    let detectedCategory = uploadData.category;
+    let detectedCategory = 'other';
     
     if (mimeType.startsWith('image/')) {
-      detectedCategory = uploadData.category === 'plans' ? 'plans' : 'photos';
+      detectedCategory = 'photos';
     } else if (mimeType.startsWith('video/')) {
       detectedCategory = 'videos';
     } else if (mimeType.includes('pdf') || mimeType.includes('document')) {
-      detectedCategory = uploadData.category === 'permits' ? 'permits' : 'reports';
+      detectedCategory = 'reports';
     }
 
     // Save file metadata to database
@@ -194,27 +194,16 @@ export const FloorDocumentsManager: React.FC<FloorDocumentsManagerProps> = ({
         file_url: publicUrl,
         floor_id: floor.id,
         category: detectedCategory,
-        description: uploadData.description,
-        tags: uploadData.tags,
-        related_floor_task_id: uploadData.relatedTaskId || null,
-        document_purpose: uploadData.documentPurpose
+        description: '',
+        tags: [],
+        related_floor_task_id: null,
+        document_purpose: 'general'
       }])
       .select('id');
 
     if (dbError) throw dbError;
 
-    // Create task-document relationship if related to a task
-    if (uploadData.relatedTaskId && fileRecord && fileRecord[0]) {
-      await supabase
-        .from('task_documents')
-        .insert([{
-          task_id: uploadData.relatedTaskId,
-          task_type: 'floor_task',
-          file_id: fileRecord[0].id,
-          relationship_type: uploadData.documentPurpose,
-          description: uploadData.description
-        }]);
-    }
+    // Task-document relationship would be handled separately if needed
   };
 
   const handleDeleteFile = async (fileId: string) => {
@@ -402,7 +391,7 @@ export const FloorDocumentsManager: React.FC<FloorDocumentsManagerProps> = ({
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredFiles.map((file) => (
+                {filteredFiles.map((file, index) => (
                   <div key={file.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                     <div className="flex items-start gap-3">
                       <div className="flex-shrink-0">

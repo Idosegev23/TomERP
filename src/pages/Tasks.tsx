@@ -33,6 +33,8 @@ interface Task {
   priority: string;
   due_date: string;
   assigned_to: string;
+  task_type: string;
+  progress_percentage: number;
   parent_task_id?: string;
   developer_id?: string;
   project_id?: string;
@@ -175,6 +177,8 @@ export const Tasks: React.FC = () => {
           priority,
           due_date,
           assigned_to,
+          task_type,
+          progress_percentage,
           parent_task_id,
           developer_id,
           project_id,
@@ -350,6 +354,7 @@ export const Tasks: React.FC = () => {
       projectId: '',
       assignedTo: '',
       entityType: '',
+      taskType: 'all',
       sortBy: 'due_date',
       sortOrder: 'asc'
     });

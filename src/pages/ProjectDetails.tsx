@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowRight, Building, Building2, MapPin, Calendar, Users, CheckSquare2, Settings, Plus } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { TaskViews, TaskFormModal } from '../components/tasks';
+import { TaskViews } from '../components/tasks';
 import { useTasks } from '../hooks/useTasks';
 
 interface Project {
@@ -420,14 +420,14 @@ const ProjectDetails: React.FC = () => {
       </div>
       
       {/* Task Form Modal */}
-      {projectId && (
+      {/* {projectId && (
         <TaskFormModal
           isOpen={showTaskForm}
           onClose={() => setShowTaskForm(false)}
           onTaskCreated={fetchProjectTasks}
           projectId={projectId}
         />
-      )}
+      )} */}
     </div>
   );
 };

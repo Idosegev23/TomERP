@@ -62,7 +62,7 @@ export const usePWA = () => {
 
     // Check if already installed
     if (window.matchMedia('(display-mode: standalone)').matches || 
-        window.navigator.standalone || 
+        (window.navigator as any).standalone || 
         document.referrer.includes('android-app://')) {
       setPwaState(prev => ({ ...prev, isInstalled: true }));
     }
@@ -105,32 +105,8 @@ export const usePWA = () => {
   };
 
   const showUpdateNotification = () => {
-    toast(
-      (t) => (
-        <div className="flex items-center gap-3" dir="rtl">
-          <div>
-            <p className="font-medium">🚀 עדכון זמין!</p>
-            <p className="text-sm text-gray-600">גרסה חדשה של האפליקציה זמינה</p>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => {
-                toast.dismiss(t.id);
-                updateApp();
-              }}
-              className="px-3 py-1 bg-blue-600 text-white rounded text-sm"
-            >
-              עדכן
-            </button>
-            <button
-              onClick={() => toast.dismiss(t.id)}
-              className="px-3 py-1 bg-gray-300 text-gray-700 rounded text-sm"
-            >
-              מאוחר יותר
-            </button>
-          </div>
-        </div>
-      ),
+    toast.success(
+      '🚀 עדכון זמין! גרסה חדשה של האפליקציה זמינה. עדכן עכשיו לגרסה החדשה.',
       {
         duration: 10000,
         position: 'top-center'

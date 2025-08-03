@@ -291,12 +291,12 @@ export const ApartmentStatusManager: React.FC<ApartmentStatusManagerProps> = ({
 
   const handleReservation = () => {
     // This would open a reservation modal
-    toast.info('פונקציית רישום תבוא בשלב הבא');
+    toast('פונקציית רישום תבוא בשלב הבא', { icon: 'ℹ️' });
   };
 
   const handleContractSigning = () => {
     // This would open a contract modal
-    toast.info('פונקציית חוזה תבוא בשלב הבא');
+    toast('פונקציית חוזה תבוא בשלב הבא', { icon: 'ℹ️' });
   };
 
   const getStatusColor = (status: string) => {

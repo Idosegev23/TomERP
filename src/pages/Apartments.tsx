@@ -275,7 +275,7 @@ export const Apartments: React.FC = () => {
         (apt.primary_contact_name && apt.primary_contact_name.toLowerCase().includes(searchLower)) ||
         (apt.primary_contact_phone && apt.primary_contact_phone.includes(searchTerm)) ||
         (apt.primary_contact_email && apt.primary_contact_email.toLowerCase().includes(searchLower)) ||
-        (apt.direction && apt.direction.toLowerCase().includes(searchLower)) ||
+        (apt.directions && apt.directions.some(d => d.toLowerCase().includes(searchLower))) ||
         (apt.position && apt.position.toLowerCase().includes(searchLower)) ||
         (apt.notes && apt.notes.toLowerCase().includes(searchLower)) ||
         // Search by numeric values
@@ -1507,7 +1507,7 @@ export const Apartments: React.FC = () => {
                   parking_spots: pricingApartment.parking_spots,
                   storage_rooms: pricingApartment.storage_rooms,
                   room_count: pricingApartment.room_count,
-                  direction: pricingApartment.direction,
+                  direction: pricingApartment.directions?.[0] || 'unknown',
                   floor_number: floor?.floor_number
                 }}
                 onPriceUpdate={(prices) => {

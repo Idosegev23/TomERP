@@ -132,7 +132,7 @@ export const Buildings: React.FC = () => {
     try {
       // Get apartment counts and statuses for each building
       const stats: { [key: string]: any } = {};
-
+      
       for (const buildingId of buildingIds) {
         // Get floors count
         const { data: floorsData } = await supabase
@@ -145,7 +145,7 @@ export const Buildings: React.FC = () => {
         const { data: apartmentsData } = await supabase
           .from('apartments')
           .select('status')
-          .eq('floor_id', 'IN', `(${floorsData?.map(f => `'${f.id}'`).join(',') || "''"})`)
+          .in('floor_id', floorsData?.map(f => f.id) || [])
           .eq('is_active', true);
 
         // Get tasks count
@@ -165,7 +165,7 @@ export const Buildings: React.FC = () => {
           completed_tasks: tasksData?.filter(t => t.status === 'completed').length || 0
         };
       }
-
+      
       setBuildingStats(stats);
     } catch (error) {
       console.error('Error loading building stats:', error);
@@ -227,31 +227,31 @@ export const Buildings: React.FC = () => {
     <div className="container mx-auto px-4 py-8" dir="rtl">
       {/* Header */}
       <div className="mb-8">
-        {/* Breadcrumb */}
+      {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-sm text-gray-600 mb-4">
           <Home className="h-4 w-4" />
           <ChevronRight className="h-4 w-4" />
           <span>פרויקטים</span>
-          <ChevronRight className="h-4 w-4" />
+        <ChevronRight className="h-4 w-4" />
           <span>{project?.name}</span>
-          <ChevronRight className="h-4 w-4" />
+        <ChevronRight className="h-4 w-4" />
           <span className="text-gray-900 font-medium">בניינים</span>
-        </nav>
+      </nav>
 
         <div className="flex justify-between items-center">
-          <div>
+        <div>
             <h1 className="text-3xl font-bold text-gray-900">בניינים</h1>
             <p className="text-gray-600 mt-1">
               ניהול בניינים בפרויקט {project?.name}
             </p>
-          </div>
-          <button
+        </div>
+        <button
             onClick={() => setShowBuildingForm(true)}
             className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <Plus className="h-5 w-5" />
-            הוסף בניין
-          </button>
+        >
+          <Plus className="h-5 w-5" />
+          הוסף בניין
+        </button>
         </div>
       </div>
 
@@ -281,7 +281,7 @@ export const Buildings: React.FC = () => {
                 <div className="p-6">
                   {/* Building Header */}
                   <div className="flex items-start justify-between mb-4">
-                    <div>
+                      <div>
                       <h3 className="text-lg font-semibold text-gray-900">{building.name}</h3>
                       {building.description && (
                         <p className="text-sm text-gray-600 mt-1">{building.description}</p>
@@ -414,4 +414,4 @@ export const Buildings: React.FC = () => {
       )}
     </div>
   );
-};
+}; 
