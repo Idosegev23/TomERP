@@ -10,6 +10,7 @@ import { SignUpInvitation } from './pages/SignUpInvitation';
 import { Unauthorized } from './pages/Unauthorized';
 import { Dashboard } from './pages/Dashboard';
 import { TestConnection } from './pages/TestConnection';
+import { PWAInstallBanner, PWAStatusIndicator } from './components/pwa';
 import './utils/i18n'; // Initialize i18n
 
 // Lazy load heavy components
@@ -21,6 +22,7 @@ const Floors = lazy(() => import('./pages/Floors').then(module => ({ default: mo
 const Apartments = lazy(() => import('./pages/Apartments').then(module => ({ default: module.Apartments })));
 const Units = lazy(() => import('./pages/Units').then(module => ({ default: module.Units })));
 const Tasks = lazy(() => import('./pages/Tasks').then(module => ({ default: module.Tasks })));
+const StagesManagement = lazy(() => import('./pages/StagesManagement').then(module => ({ default: module.StagesManagement })));
 const Users = lazy(() => import('./pages/Users').then(module => ({ default: module.Users })));
 const Files = lazy(() => import('./pages/FilesHierarchy').then(module => ({ default: module.FilesHierarchy })));
 const GlobalSearch = lazy(() => import('./pages/GlobalSearch').then(module => ({ default: module.GlobalSearch })));
@@ -181,6 +183,11 @@ function App() {
                 <Tasks />
               </Suspense>
             } />
+            <Route path="tasks/stages" element={
+              <Suspense fallback={<PageLoadingScreen />}>
+                <StagesManagement />
+              </Suspense>
+            } />
             <Route path="files" element={
               <ProtectedRoute resource="files">
                 <Suspense fallback={<PageLoadingScreen />}>
@@ -231,6 +238,10 @@ function App() {
             },
           }}
         />
+        
+        {/* PWA Components */}
+        <PWAInstallBanner />
+        <PWAStatusIndicator />
       </AuthProvider>
     </Router>
   );

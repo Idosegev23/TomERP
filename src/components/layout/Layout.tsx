@@ -12,7 +12,8 @@ import {
   X,
   LogOut,
   FileText,
-  Search
+  Search,
+  Target
 } from 'lucide-react';
 import { Button } from '../ui';
 import { useAuth } from '../auth/AuthContext';
@@ -47,13 +48,14 @@ export const Layout: React.FC = () => {
     { to: '/projects', icon: Building, label: t('navigation.projects'), requiresAccess: 'projects' },
     { to: '/units', icon: Home, label: t('navigation.units') },
     { to: '/tasks', icon: CheckSquare, label: t('navigation.tasks') },
+    { to: '/tasks/stages', icon: Target, label: '🎯 ניהול שלבים' },
     { to: '/files', icon: FileText, label: 'קבצים', requiresAccess: 'files' },
     { to: '/users', icon: Users, label: t('navigation.users'), requiresAccess: 'users' },
     { to: '/settings', icon: Settings, label: t('navigation.settings') },
   ].filter(item => !item.requiresAccess || hasAccess(item.requiresAccess));
 
   return (
-    <div className="min-h-screen bg-gray-50 flex" dir="rtl">
+    <div className="min-h-screen bg-gray-50 flex safe-area-top safe-area-bottom" dir="rtl">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div 
@@ -82,7 +84,7 @@ export const Layout: React.FC = () => {
           </Button>
         </div>
 
-        <nav className="mt-6 px-3">
+        <nav className="mt-6 px-3 nav-mobile">
           <div className="space-y-1">
             {navigationItems.map((item) => (
               <SidebarItem
@@ -128,33 +130,47 @@ export const Layout: React.FC = () => {
       {/* Main content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top header */}
-        <header className="bg-white shadow-sm border-b border-gray-200">
+        <header className="bg-white shadow-sm border-b border-gray-200 sticky-mobile">
           <div className="flex items-center justify-between h-16 px-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="lg:hidden"
-              onClick={() => setSidebarOpen(true)}
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="lg:hidden tap-area"
+                onClick={() => setSidebarOpen(true)}
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+              <div className="lg:hidden">
+                <h1 className="text-lg font-semibold text-gray-900">נדל"ן Pro</h1>
+                <div className="text-xs text-gray-500 hidden sm:block">
+                  {user?.full_name || user?.email}
+                </div>
+              </div>
+            </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 md:gap-4">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate('/search')}
-                className="text-gray-600 hover:text-blue-600"
+                className="text-gray-600 hover:text-blue-600 tap-area"
                 title="חיפוש גלובלי"
               >
                 <Search className="h-5 w-5" />
               </Button>
-              <span className="text-gray-500 text-sm">
+              <span className="text-gray-500 text-sm hidden md:block">
                 {new Date().toLocaleDateString('he-IL', {
                   weekday: 'long',
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric'
+                })}
+              </span>
+              <span className="text-gray-500 text-xs md:hidden">
+                {new Date().toLocaleDateString('he-IL', {
+                  day: 'numeric',
+                  month: 'short'
                 })}
               </span>
             </div>

@@ -42,6 +42,7 @@ import {
 import toast from 'react-hot-toast';
 import { UnitStatusModal, UnitTasksModal, PricingCalculator } from '../components/units';
 import { FileUploadModal } from '../components/files';
+import { PricingFactorsModal, ApartmentStatusManager } from '../components/apartments';
 
 interface Apartment {
   id: string;
@@ -52,7 +53,7 @@ interface Apartment {
   built_area: number;
   garden_balcony_area?: number;
   total_area: number;
-  direction?: string;
+  directions?: string[]; // שונה מ-direction ל-directions array
   position?: string;
   parking_spots?: number;
   storage_rooms?: number;
@@ -74,6 +75,28 @@ interface Apartment {
   created_by?: string;
   created_at: string;
   updated_at?: string;
+  // הוספת שדות נוספים לתמיכה בדירת גן
+  floor?: { floor_number: number; name?: string };
+  // שדות למעקב מכירות
+  interested_count?: number;
+  last_activity_date?: string;
+  contract_signed_date?: string;
+  down_payment_amount?: number;
+  final_price?: number;
+  commission_rate?: number;
+}
+
+// Interface למקדמי מחיר אקוויוולנטי
+interface PricingFactors {
+  id: string;
+  project_id: string;
+  floor_factor: number;
+  direction_factor: { [key: string]: number };
+  parking_factor: number;
+  storage_factor: number;
+  balcony_garden_factor: number;
+  unit_type_factor: { [key: string]: number };
+  room_count_factor: { [key: string]: number };
 }
 
 interface ApartmentFile {
@@ -142,6 +165,9 @@ export const Apartments: React.FC = () => {
   const [pricingApartment, setPricingApartment] = useState<Apartment | null>(null);
   const [showFileUploadModal, setShowFileUploadModal] = useState(false);
   const [apartmentForFileUpload, setApartmentForFileUpload] = useState<Apartment | null>(null);
+  const [showPricingFactorsModal, setShowPricingFactorsModal] = useState(false);
+  const [showStatusManager, setShowStatusManager] = useState(false);
+  const [statusManagerApartment, setStatusManagerApartment] = useState<Apartment | null>(null);
   
   const [formData, setFormData] = useState({
     apartment_number: '',
@@ -149,7 +175,7 @@ export const Apartments: React.FC = () => {
     room_count: 2,
     built_area: '',
     garden_balcony_area: '',
-    direction: '',
+    directions: [] as string[], // שונה מ-direction ל-directions array
     position: '',
     parking_spots: '0',
     storage_rooms: '0',
@@ -299,7 +325,7 @@ export const Apartments: React.FC = () => {
         room_count: formData.room_count || null,
         built_area: parseFloat(formData.built_area),
         garden_balcony_area: formData.garden_balcony_area ? parseFloat(formData.garden_balcony_area) : 0,
-        direction: formData.direction || null,
+        directions: formData.directions.length > 0 ? formData.directions : null, // עדכון לתמיכה במערך כיוונים
         position: formData.position || null,
         parking_spots: formData.parking_spots ? parseInt(formData.parking_spots) : 0,
         storage_rooms: formData.storage_rooms ? parseInt(formData.storage_rooms) : 0,
@@ -344,7 +370,7 @@ export const Apartments: React.FC = () => {
       room_count: apartment.room_count || 2,
       built_area: apartment.built_area.toString(),
       garden_balcony_area: apartment.garden_balcony_area?.toString() || '',
-      direction: apartment.direction || '',
+      directions: apartment.directions || [], // עדכון לתמיכה במערך כיוונים
       position: apartment.position || '',
       parking_spots: apartment.parking_spots?.toString() || '0',
       storage_rooms: apartment.storage_rooms?.toString() || '0',
@@ -384,8 +410,7 @@ export const Apartments: React.FC = () => {
   };
 
   const openStatusModal = (apartment: Apartment) => {
-    setEditingStatusApartment(apartment);
-    setShowStatusModal(true);
+    handleStatusManagement(apartment);
   };
 
   const closeStatusModal = () => {
@@ -426,6 +451,15 @@ export const Apartments: React.FC = () => {
   const handleFileUploadSuccess = () => {
     closeFileUploadModal();
     toast.success('הקבצים הועלו בהצלחה לדירה');
+  };
+
+  const handleStatusManagement = (apartment: Apartment) => {
+    setStatusManagerApartment(apartment);
+    setShowStatusManager(true);
+  };
+
+  const handleStatusUpdated = () => {
+    fetchHierarchyAndApartments();
   };
 
   const calculatePricePerSqm = (price: number, totalArea: number) => {
@@ -516,7 +550,7 @@ export const Apartments: React.FC = () => {
       room_count: 2,
       built_area: '',
       garden_balcony_area: '',
-      direction: '',
+      directions: [], // עדכון לתמיכה במערך כיוונים
       position: '',
       parking_spots: '0',
       storage_rooms: '0',
@@ -671,13 +705,22 @@ export const Apartments: React.FC = () => {
             </div>
           </div>
         </div>
-        <button
-          onClick={() => setShowForm(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors"
-        >
-          <Plus className="h-5 w-5" />
-          הוסף דירה
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => setShowPricingFactorsModal(true)}
+            className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center gap-2 transition-colors"
+          >
+            <Calculator className="h-5 w-5" />
+            מקדמי מחיר
+          </button>
+          <button
+            onClick={() => setShowForm(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors"
+          >
+            <Plus className="h-5 w-5" />
+            הוסף דירה
+          </button>
+        </div>
       </div>
 
       {/* Search and Filters */}
@@ -782,11 +825,29 @@ export const Apartments: React.FC = () => {
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-1">
-                  {getStatusIcon(apartment.status)}
-                  <span className={`text-xs px-2 py-1 rounded-full border ${getStatusColor(apartment.status)}`}>
-                    {getStatusLabel(apartment.status)}
-                  </span>
+                <div className="flex flex-col items-end gap-1">
+                  <div className="flex items-center gap-1">
+                    {getStatusIcon(apartment.status)}
+                    <span className={`text-xs px-2 py-1 rounded-full border ${getStatusColor(apartment.status)}`}>
+                      {getStatusLabel(apartment.status)}
+                    </span>
+                  </div>
+                  
+                  {/* מעוניינים ופעילות אחרונה */}
+                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                    {apartment.interested_count && apartment.interested_count > 0 && (
+                      <div className="flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-full">
+                        <Users className="h-3 w-3 text-blue-600" />
+                        <span className="text-blue-700">{apartment.interested_count}</span>
+                      </div>
+                    )}
+                    {apartment.last_activity_date && (
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        <span>{new Date(apartment.last_activity_date).toLocaleDateString('he-IL')}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -809,10 +870,16 @@ export const Apartments: React.FC = () => {
                   <span className="text-gray-500">שטח כולל:</span>
                   <span className="font-medium">{apartment.total_area} מ"ר</span>
                 </div>
-                {apartment.direction && (
+                {apartment.directions && apartment.directions.length > 0 && (
                   <div className="flex justify-between">
-                    <span className="text-gray-500">כיוון:</span>
-                    <span className="font-medium">{getDirectionLabel(apartment.direction)}</span>
+                    <span className="text-gray-500">כיוונים:</span>
+                    <div className="flex flex-wrap gap-1">
+                      {apartment.directions.map(dir => (
+                        <span key={dir} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                          {getDirectionLabel(dir)}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 )}
                 {apartment.position && (
@@ -893,9 +960,9 @@ export const Apartments: React.FC = () => {
                 <button
                   onClick={() => openStatusModal(apartment)}
                   className="text-purple-600 hover:text-purple-800 transition-colors"
-                  title="ניהול מכירה"
+                  title="🚀 ניהול סטטוס ומכירות"
                 >
-                  <Settings size={16} />
+                  <TrendingUp size={16} />
                 </button>
                 <button
                   onClick={() => openTasksModal(apartment)}
@@ -1019,7 +1086,9 @@ export const Apartments: React.FC = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      שטח מרפסת (מ"ר)
+                      {formData.apartment_type === 'garden' || (floor && floor.floor_number === 0) 
+                        ? '🌳 שטח גינה (מ"ר)' 
+                        : '🏢 שטח מרפסת (מ"ר)'}
                     </label>
                     <input
                       type="number"
@@ -1027,6 +1096,9 @@ export const Apartments: React.FC = () => {
                       value={formData.garden_balcony_area}
                       onChange={(e) => setFormData({ ...formData, garden_balcony_area: e.target.value })}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder={formData.apartment_type === 'garden' || (floor && floor.floor_number === 0) 
+                        ? 'שטח הגינה במ"ר' 
+                        : 'שטח המרפסת במ"ר'}
                     />
                   </div>
 
@@ -1049,36 +1121,59 @@ export const Apartments: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      חדרים
+                      🏠 חדרים (בקפיצות 0.5)
                     </label>
-                    <input
-                      type="number"
-                      min="1"
+                    <select
                       value={formData.room_count}
-                      onChange={(e) => setFormData({ ...formData, room_count: parseInt(e.target.value) || 1 })}
+                      onChange={(e) => setFormData({ ...formData, room_count: parseFloat(e.target.value) || 1 })}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
+                    >
+                      {[1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8].map(roomCount => (
+                        <option key={roomCount} value={roomCount}>
+                          {roomCount} חדרים
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      כיוון נוף
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      כיווני נוף (בחירה מרובה)
                     </label>
-                    <select
-                      value={formData.direction}
-                      onChange={(e) => setFormData({ ...formData, direction: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="">בחר כיוון</option>
-                      <option value="north">צפון</option>
-                      <option value="south">דרום</option>
-                      <option value="east">מזרח</option>
-                      <option value="west">מערב</option>
-                      <option value="northeast">צפון מזרח</option>
-                      <option value="northwest">צפון מערב</option>
-                      <option value="southeast">דרום מזרח</option>
-                      <option value="southwest">דרום מערב</option>
-                    </select>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { value: 'north', label: '🧭 צפון' },
+                        { value: 'south', label: '🧭 דרום' },
+                        { value: 'east', label: '🧭 מזרח' },
+                        { value: 'west', label: '🧭 מערב' },
+                        { value: 'northeast', label: '🧭 צפון מזרח' },
+                        { value: 'northwest', label: '🧭 צפון מערב' },
+                        { value: 'southeast', label: '🧭 דרום מזרח' },
+                        { value: 'southwest', label: '🧭 דרום מערב' }
+                      ].map(direction => (
+                        <label key={direction.value} className="flex items-center space-x-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={formData.directions.includes(direction.value)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setFormData({ 
+                                  ...formData, 
+                                  directions: [...formData.directions, direction.value] 
+                                });
+                              } else {
+                                setFormData({ 
+                                  ...formData, 
+                                  directions: formData.directions.filter(d => d !== direction.value) 
+                                });
+                              }
+                            }}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                          <span className="text-sm text-gray-700">{direction.label}</span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
 
                   <div>
@@ -1431,6 +1526,25 @@ export const Apartments: React.FC = () => {
           onUploadSuccess={handleFileUploadSuccess}
           initialEntityType="unit"
           initialEntityId={apartmentForFileUpload.id}
+        />
+      )}
+
+      {/* Pricing Factors Modal */}
+      {showPricingFactorsModal && (
+        <PricingFactorsModal
+          isOpen={showPricingFactorsModal}
+          onClose={() => setShowPricingFactorsModal(false)}
+          projectId={projectId!}
+        />
+      )}
+
+      {/* Apartment Status Manager */}
+      {showStatusManager && statusManagerApartment && (
+        <ApartmentStatusManager
+          isOpen={showStatusManager}
+          onClose={() => setShowStatusManager(false)}
+          apartment={statusManagerApartment}
+          onStatusUpdated={handleStatusUpdated}
         />
       )}
     </div>

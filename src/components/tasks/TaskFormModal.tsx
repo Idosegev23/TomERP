@@ -329,7 +329,7 @@ const TaskFormModal: React.FC<TaskFormModalProps> = ({
       <div className="bg-white rounded-lg w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b">
           <h2 className="text-xl font-semibold">
-            {parentTaskId ? 'הוספת תת-משימה' : 'הוספת משימה חדשה'}
+            {parentTaskId ? 'הוספת משימה לשלב' : 'הוספת שלב/משימה חדשה'}
           </h2>
           <button
             onClick={handleClose}
@@ -500,7 +500,7 @@ const TaskFormModal: React.FC<TaskFormModalProps> = ({
 
           {/* Assigned User */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
               <Users size={16} />
               משויך למשתמש
             </label>

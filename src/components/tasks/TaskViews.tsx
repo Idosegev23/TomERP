@@ -432,28 +432,28 @@ const TaskViews: React.FC<TaskViewsProps> = ({ tasks, onUpdateTaskStatus, onRefr
                 {getStatusLabel(task.status)}
               </span>
               
-              {/* Parent/Sub-task Indicators */}
+              {/* Stage/Task Indicators */}
               {hasChildren && !isSubTask && (
                 <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full flex items-center gap-1">
                   <FileText className="h-3 w-3" />
-                  משימת-אב ({task.children?.length || 0} תתי-משימות)
+                  🎯 שלב ({task.children?.length || 0} משימות)
                 </span>
               )}
               
               {isSubTask && (
                 <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full flex items-center gap-1">
                   <ChevronLeft className="h-3 w-3" />
-                  תת-משימה
+                  📋 משימה
                 </span>
               )}
             </div>
             
-            {/* Parent Task Info for Sub-tasks */}
+            {/* Parent Stage Info for Tasks */}
             {isSubTask && task.parent_task_id && (
               <div className="mb-2">
                 <div className="inline-flex items-center gap-1 text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded border border-blue-200">
                   <FileText className="h-3 w-3" />
-                  <span>משימת-אב: {tasks.find(t => t.id === task.parent_task_id)?.title || 'לא נמצא'}</span>
+                  <span>🎯 שלב: {tasks.find(t => t.id === task.parent_task_id)?.title || 'לא נמצא'}</span>
                 </div>
               </div>
             )}

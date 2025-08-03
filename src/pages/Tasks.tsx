@@ -22,6 +22,7 @@ import {
 import { Card, CardHeader, CardContent } from '../components/ui';
 import { useAuth } from '../components/auth/AuthContext';
 import { FileUploadModal } from '../components/files';
+import { TaskEditModal } from '../components/tasks';
 import toast from 'react-hot-toast';
 
 interface Task {
@@ -53,6 +54,7 @@ interface FilterOptions {
   projectId: string;
   assignedTo: string;
   entityType: string;
+  taskType: string; // 'stages', 'tasks', 'all'
   sortBy: string;
   sortOrder: 'asc' | 'desc';
 }
@@ -68,12 +70,15 @@ export const Tasks: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [showFileUpload, setShowFileUpload] = useState(false);
   const [selectedTaskForFiles, setSelectedTaskForFiles] = useState<Task | null>(null);
+  const [showTaskEdit, setShowTaskEdit] = useState(false);
+  const [selectedTaskForEdit, setSelectedTaskForEdit] = useState<Task | null>(null);
   const [filters, setFilters] = useState<FilterOptions>({
     status: '',
     priority: '',
     projectId: '',
     assignedTo: '',
     entityType: '',
+    taskType: 'all', // all, stages, tasks
     sortBy: 'due_date',
     sortOrder: 'asc'
   });
@@ -245,6 +250,15 @@ export const Tasks: React.FC = () => {
         }
       }
 
+      // Apply task type filter
+      if (filters.taskType && filters.taskType !== 'all') {
+        if (filters.taskType === 'stages') {
+          query = query.is('parent_task_id', null);
+        } else if (filters.taskType === 'tasks') {
+          query = query.not('parent_task_id', 'is', null);
+        }
+      }
+
       // Apply sorting
       const isAsc = filters.sortOrder === 'asc';
       switch (filters.sortBy) {
@@ -411,10 +425,9 @@ export const Tasks: React.FC = () => {
     return dueDate < today;
   };
 
-  const navigateToTask = (task: Task) => {
-    if (task.project?.id && hasAccess('projects')) {
-      navigate(`/projects/${task.project.id}`);
-    }
+  const handleEditTask = (task: Task) => {
+    setSelectedTaskForEdit(task);
+    setShowTaskEdit(true);
   };
 
   const handleUploadFiles = (task: Task) => {
@@ -426,6 +439,12 @@ export const Tasks: React.FC = () => {
     setShowFileUpload(false);
     setSelectedTaskForFiles(null);
     toast.success('הקבצים הועלו בהצלחה למשימה');
+  };
+
+  const handleTaskUpdated = () => {
+    setShowTaskEdit(false);
+    setSelectedTaskForEdit(null);
+    fetchTasks(); // Refresh the task list
   };
 
   const getEntityTypeText = (task: Task) => {
@@ -446,7 +465,7 @@ export const Tasks: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6" dir="rtl">
+    <div className="container mx-auto px-4 py-6 safe-area-bottom" dir="rtl">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-sm text-gray-600 mb-6">
         <button
@@ -457,28 +476,91 @@ export const Tasks: React.FC = () => {
           דף הבית
         </button>
         <ChevronRight className="h-4 w-4" />
-        <span className="text-gray-900 font-medium">כל המשימות</span>
+        <span className="text-gray-900 font-medium">🎯 שלבים ומשימות</span>
       </nav>
 
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">כל המשימות במערכת</h1>
-          <p className="text-gray-600">מעקב אחר כל המשימות מכל הפרויקטים</p>
-        </div>
-        <div className="flex gap-3">
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`px-4 py-2 rounded-lg border transition-colors flex items-center gap-2 ${
-              showFilters ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-            }`}
-          >
-            <Filter className="h-4 w-4" />
-            סינון
-          </button>
-          <span className="text-sm text-gray-500 py-2">
-            נמצאו {tasks.length} משימות
-          </span>
+      {/* Enhanced Header */}
+      <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg p-6 mb-8 border border-orange-100">
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              🎯 ניהול שלבים ומשימות
+            </h1>
+            <p className="text-gray-600 mb-4">
+              מעקב מתקדם אחר שלבי הפרויקט ומשימות מכל רמות הארגון
+            </p>
+            
+            {/* Quick Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-white rounded-lg p-3 border border-orange-200">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span className="text-sm font-medium text-gray-700">🎯 שלבים</span>
+                </div>
+                <div className="text-xl font-bold text-blue-600">
+                  {tasks.filter(task => !task.parent_task_id).length}
+                </div>
+              </div>
+              
+              <div className="bg-white rounded-lg p-3 border border-orange-200">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span className="text-sm font-medium text-gray-700">📋 משימות</span>
+                </div>
+                <div className="text-xl font-bold text-green-600">
+                  {tasks.filter(task => task.parent_task_id).length}
+                </div>
+              </div>
+              
+              <div className="bg-white rounded-lg p-3 border border-orange-200">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  <span className="text-sm font-medium text-gray-700">✅ הושלמו</span>
+                </div>
+                <div className="text-xl font-bold text-purple-600">
+                  {tasks.filter(task => task.status === 'completed').length}
+                </div>
+              </div>
+              
+              <div className="bg-white rounded-lg p-3 border border-orange-200">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                  <span className="text-sm font-medium text-gray-700">🚨 פתוחות</span>
+                </div>
+                <div className="text-xl font-bold text-red-600">
+                  {tasks.filter(task => ['open', 'in_progress'].includes(task.status)).length}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex flex-col gap-3">
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`px-4 py-2 rounded-lg border transition-colors flex items-center gap-2 tap-area ${
+                  showFilters ? 'bg-orange-600 text-white border-orange-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                <Filter className="h-4 w-4" />
+                <span className="mobile-hidden">סינון מתקדם</span>
+                <span className="md:hidden">סינון</span>
+              </button>
+              
+              <button
+                onClick={() => navigate('/tasks/stages')}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 tap-area"
+              >
+                <CheckSquare className="h-4 w-4" />
+                <span className="mobile-hidden">ניהול שלבים</span>
+                <span className="md:hidden">🎯 שלבים</span>
+              </button>
+            </div>
+            
+            <div className="text-sm text-gray-600 text-center">
+              סה"כ {tasks.length} פריטים • {tasks.filter(task => !task.parent_task_id).length} שלבים • {tasks.filter(task => task.parent_task_id).length} משימות
+            </div>
+          </div>
         </div>
       </div>
 
@@ -584,6 +666,20 @@ export const Tasks: React.FC = () => {
                 </select>
               </div>
 
+              {/* Task Type Filter */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">🎯 סוג פריט</label>
+                <select
+                  value={filters.taskType}
+                  onChange={(e) => handleFilterChange('taskType', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                >
+                  <option value="all">הכל</option>
+                  <option value="stages">🎯 שלבים בלבד</option>
+                  <option value="tasks">📋 משימות בלבד</option>
+                </select>
+              </div>
+
               {/* Sort By */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">מיון לפי</label>
@@ -647,49 +743,53 @@ export const Tasks: React.FC = () => {
             return (
               <Card 
                 key={task.id} 
-                className={`hover:shadow-lg transition-shadow cursor-pointer ${
+                className={`card-mobile hover:shadow-lg transition-shadow cursor-pointer ${
                   isSubtask ? 'border-r-4 border-r-blue-200 bg-blue-50/30' : ''
                 }`}
                 style={indentStyle}
               >
-                <CardContent className="p-6" onClick={() => navigateToTask(task)}>
+                <CardContent className="p-6" onClick={() => handleEditTask(task)}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       {/* Header */}
                       <div className="flex items-center gap-3 mb-3">
+                        {/* Stage/Task Type Indicator */}
+                        <div className={`flex items-center gap-2 px-2 py-1 rounded-lg text-xs font-medium ${
+                          isSubtask 
+                            ? 'bg-green-100 text-green-700 border border-green-200' 
+                            : 'bg-blue-100 text-blue-700 border border-blue-200'
+                        }`}>
+                          {isSubtask ? '📋 משימה' : '🎯 שלב'}
+                          {hasSubtasks && !isSubtask && (
+                            <span className="text-blue-500">({task.subtasks?.length})</span>
+                          )}
+                        </div>
+
                         {isSubtask && (
-                          <div className="flex items-center gap-2 text-blue-600">
-                            <div className="w-4 h-0.5 bg-blue-300"></div>
+                          <div className="flex items-center gap-2 text-green-600">
+                            <div className="w-4 h-0.5 bg-green-300"></div>
                             <ChevronLeft className="h-4 w-4" />
                           </div>
                         )}
+                        
                         <StatusIcon className="h-5 w-5 text-gray-600" />
                         <h3 className={`font-semibold text-gray-900 ${isSubtask ? 'text-base' : 'text-lg'}`}>
                           {task.title}
                         </h3>
+                        
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(task.status)}`}>
                           {getStatusText(task.status)}
                         </span>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(task.priority)}`}>
                           {getPriorityText(task.priority)}
                         </span>
-                        {hasSubtasks && (
-                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            משימת-אב ({task.subtasks!.length} תתי-משימות)
-                          </span>
-                        )}
-                        {isSubtask && (
-                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            תת-משימה
-                          </span>
-                        )}
                       </div>
 
                       {/* Parent Task Info for Subtasks */}
                       {isSubtask && task.parent_task && (
                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
                           <p className="text-sm text-blue-800">
-                            <strong>משימת-אב:</strong> {task.parent_task.title}
+                            <strong>🎯 שלב:</strong> {task.parent_task.title}
                           </p>
                         </div>
                       )}
@@ -733,26 +833,28 @@ export const Tasks: React.FC = () => {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 card-actions-mobile">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleUploadFiles(task);
                         }}
-                        className="flex items-center gap-2 text-green-600 hover:text-green-700 text-sm px-3 py-1 rounded-lg hover:bg-green-50 transition-colors"
+                        className="flex items-center justify-center gap-2 text-green-600 hover:text-green-700 text-sm px-3 py-2 rounded-lg hover:bg-green-50 transition-colors tap-area"
                       >
                         <Upload className="h-4 w-4" />
-                        העלה קבצים
+                        <span className="hidden sm:inline">העלה קבצים</span>
+                        <span className="sm:hidden">📎 קבצים</span>
                       </button>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigateToTask(task);
+                          handleEditTask(task);
                         }}
-                        className="flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm px-3 py-1 rounded-lg hover:bg-blue-50 transition-colors"
+                        className="flex items-center justify-center gap-2 text-blue-600 hover:text-blue-700 text-sm px-3 py-2 rounded-lg hover:bg-blue-50 transition-colors tap-area"
                       >
                         <Eye className="h-4 w-4" />
-                        צפה בפרויקט
+                        <span className="hidden sm:inline">ערוך משימה</span>
+                        <span className="sm:hidden">✏️ ערוך</span>
                       </button>
                     </div>
                   </div>
@@ -781,6 +883,16 @@ export const Tasks: React.FC = () => {
             selectedTaskForFiles.project_id ||
             ''
           }
+        />
+      )}
+
+      {/* Task Edit Modal */}
+      {showTaskEdit && selectedTaskForEdit && (
+        <TaskEditModal
+          task={selectedTaskForEdit}
+          isOpen={showTaskEdit}
+          onClose={() => setShowTaskEdit(false)}
+          onTaskUpdated={handleTaskUpdated}
         />
       )}
     </div>

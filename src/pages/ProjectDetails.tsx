@@ -339,7 +339,7 @@ const ProjectDetails: React.FC = () => {
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">משימות אב</p>
+                <p className="text-sm font-medium text-gray-600">🎯 שלבים</p>
                 <p className="text-2xl font-bold text-purple-600">
                   {tasks.filter(t => t.level === 0).length}
                 </p>
@@ -378,7 +378,7 @@ const ProjectDetails: React.FC = () => {
                 <div>
                   <h2 className="text-xl font-semibold text-gray-900">משימות הפרויקט</h2>
                   <p className="text-sm text-gray-600">
-                    ניהול ומעקב אחר כל המשימות והתת-משימות
+                    ניהול ומעקב אחר כל השלבים והמשימות
                   </p>
                 </div>
               </div>

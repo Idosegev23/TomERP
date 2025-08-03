@@ -216,7 +216,7 @@ export const DraggableTask: React.FC<DraggableTaskProps> = ({
                 
                 {task.level === 0 && (
                   <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                    {children.length} תת-משימות
+                    {children.length} משימות
                   </span>
                 )}
               </div>
@@ -303,7 +303,7 @@ export const DraggableTask: React.FC<DraggableTaskProps> = ({
                   }}
                   disabled={isUpdating}
                   className="p-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-colors disabled:opacity-50"
-                  title="הוסף תת-משימה"
+                  title="הוסף משימה לשלב"
                 >
                   <Plus className="h-4 w-4" />
                 </button>
@@ -331,7 +331,7 @@ export const DraggableTask: React.FC<DraggableTaskProps> = ({
                   type="text"
                   value={newSubTaskTitle}
                   onChange={(e) => setNewSubTaskTitle(e.target.value)}
-                  placeholder="כותרת תת-משימה חדשה"
+                  placeholder="כותרת משימה חדשה"
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
