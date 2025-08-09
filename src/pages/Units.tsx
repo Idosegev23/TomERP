@@ -31,7 +31,7 @@ interface Unit {
   marketing_price?: number;
   linear_price?: number;
   room_count?: number;
-  direction?: string;
+  directions?: string[];
   position?: string;
   parking_spots?: number;
   storage_rooms?: number;
@@ -106,7 +106,7 @@ export const Units: React.FC = () => {
           marketing_price,
           linear_price,
           room_count,
-          direction,
+          directions,
           position,
           parking_spots,
           storage_rooms,

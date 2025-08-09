@@ -240,14 +240,14 @@ const ProjectDetails: React.FC = () => {
               </div>
             </div>
             
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
               {getStatusBadge(project.project_status || 'planning')}
               <button
                 onClick={() => navigate(`/projects/${project.id}/edit`)}
                 className="flex items-center gap-2 bg-gray-100 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-200 transition-colors"
               >
                 <Settings className="h-4 w-4" />
-                עריכה
+                <span className="hidden xs:inline">עריכה</span>
               </button>
             </div>
           </div>

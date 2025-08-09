@@ -25,10 +25,11 @@ interface SidebarItemProps {
   isActive?: boolean;
 }
 
-const SidebarItem: React.FC<SidebarItemProps> = ({ to, icon: Icon, label, isActive }) => (
+const SidebarItem: React.FC<SidebarItemProps & { onNavigate?: () => void }> = ({ to, icon: Icon, label, isActive, onNavigate }) => (
   <Link 
     to={to}
     className={`sidebar-item ${isActive ? 'active' : ''}`}
+    onClick={onNavigate}
   >
     <Icon className="h-5 w-5" />
     <span>{label}</span>
@@ -93,6 +94,7 @@ export const Layout: React.FC = () => {
                 icon={item.icon}
                 label={item.label}
                 isActive={location.pathname === item.to}
+                onNavigate={() => setSidebarOpen(false)}
               />
             ))}
           </div>
