@@ -41,6 +41,7 @@ interface Task {
   floor_id?: string;
   apartment_id?: string;
   parent_task_id?: string;
+  stage_order?: number;
   created_at: string;
   updated_at: string;
 }
@@ -229,6 +230,7 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({
           start_date: editedTask.start_date,
           assigned_to: editedTask.assigned_to,
           progress_percentage: editedTask.progress_percentage,
+          stage_order: editedTask.stage_order,
           updated_at: new Date().toISOString()
         })
         .eq('id', task.id);
@@ -501,18 +503,41 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({
             <div className="p-6 max-h-[60vh] overflow-y-auto">
               {activeTab === 'details' && (
                 <div className="space-y-6">
-                  {/* Title */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      כותרת המשימה *
-                    </label>
-                    <input
-                      type="text"
-                      value={editedTask.title}
-                      onChange={(e) => setEditedTask(prev => ({ ...prev, title: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="הזן כותרת למשימה"
-                    />
+                  {/* Title and Stage Order */}
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                    <div className="md:col-span-10">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        כותרת המשימה *
+                      </label>
+                      <input
+                        type="text"
+                        value={editedTask.title}
+                        onChange={(e) => setEditedTask(prev => ({ ...prev, title: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="הזן כותרת למשימה"
+                      />
+                    </div>
+                    
+                    {/* Stage Order - only for stages (parent tasks) */}
+                    {!editedTask.parent_task_id && (
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          מספר שלב
+                        </label>
+                        <input
+                          type="number"
+                          min="1"
+                          max="99"
+                          value={editedTask.stage_order || ''}
+                          onChange={(e) => setEditedTask(prev => ({ 
+                            ...prev, 
+                            stage_order: e.target.value ? parseInt(e.target.value) : undefined 
+                          }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center"
+                          placeholder="1"
+                        />
+                      </div>
+                    )}
                   </div>
 
                   {/* Description */}

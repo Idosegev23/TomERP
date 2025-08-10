@@ -43,6 +43,7 @@ interface Task {
   apartment_id?: string;
   created_at: string;
   updated_at: string;
+  stage_order?: number;
   project?: any;
   assignee_profile?: any;
   parent_task?: Task;
@@ -186,7 +187,8 @@ export const Tasks: React.FC = () => {
           floor_id,
           apartment_id,
           created_at,
-          updated_at
+          updated_at,
+          stage_order
         `);
 
       // User access control
@@ -278,8 +280,13 @@ export const Tasks: React.FC = () => {
         case 'created_at':
           query = query.order('created_at', { ascending: isAsc });
           break;
-        default:
+        case 'due_date':
           query = query.order('due_date', { ascending: isAsc });
+          break;
+        default:
+          // Default: chronological order by stage number for stages, then due_date
+          query = query.order('stage_order', { ascending: true, nullsFirst: false })
+                       .order('due_date', { ascending: true });
       }
 
       const { data, error } = await query.limit(200);
@@ -779,6 +786,9 @@ export const Tasks: React.FC = () => {
                         
                         <StatusIcon className="h-5 w-5 text-gray-600" />
                         <h3 className={`font-semibold text-gray-900 ${isSubtask ? 'text-base' : 'text-lg'}`}>
+                          {!isSubtask && task.stage_order && (
+                            <span className="text-blue-600 font-bold">שלב {task.stage_order}: </span>
+                          )}
                           {task.title}
                         </h3>
                         
@@ -794,7 +804,7 @@ export const Tasks: React.FC = () => {
                       {isSubtask && task.parent_task && (
                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
                           <p className="text-sm text-blue-800">
-                            <strong>🎯 שלב:</strong> {task.parent_task.title}
+                            <strong>🎯 שלב {task.parent_task.stage_order}:</strong> {task.parent_task.title}
                           </p>
                         </div>
                       )}

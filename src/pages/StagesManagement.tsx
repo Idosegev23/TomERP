@@ -39,6 +39,7 @@ interface Stage {
   apartment_id?: string;
   created_at: string;
   updated_at: string;
+  stage_order?: number;
   project?: any;
   assignee_profile?: any;
   subtasks?: Task[];
@@ -75,7 +76,7 @@ export const StagesManagement: React.FC = () => {
     projectId: '',
     assignedTo: '',
     progress: '', // 'completed', 'in_progress', 'not_started'
-    sortBy: 'due_date',
+    sortBy: 'stage_order',
     sortOrder: 'asc' as 'asc' | 'desc'
   });
 
@@ -104,6 +105,7 @@ export const StagesManagement: React.FC = () => {
           apartment_id,
           created_at,
           updated_at,
+          stage_order,
           project:projects(id, name),
           assignee_profile:users!assigned_to(id, full_name, email)
         `)
@@ -145,7 +147,7 @@ export const StagesManagement: React.FC = () => {
         query = query.eq('project_id', filters.projectId);
       }
 
-      // Apply sorting
+      // Apply sorting - default to stage_order for chronological order
       const isAsc = filters.sortOrder === 'asc';
       switch (filters.sortBy) {
         case 'status':
@@ -160,8 +162,13 @@ export const StagesManagement: React.FC = () => {
         case 'created_at':
           query = query.order('created_at', { ascending: isAsc });
           break;
-        default:
+        case 'due_date':
           query = query.order('due_date', { ascending: isAsc });
+          break;
+        default:
+          // Default: chronological order by stage number, then due_date
+          query = query.order('stage_order', { ascending: true, nullsFirst: false })
+                       .order('due_date', { ascending: true });
       }
 
       const { data, error } = await query;
@@ -588,7 +595,7 @@ export const StagesManagement: React.FC = () => {
                         
                         <StatusIcon className="h-5 w-5 text-gray-600" />
                         <h3 className="text-lg font-semibold text-gray-900">
-                          {stage.title}
+                          <span className="text-blue-600 font-bold">שלב {stage.stage_order}:</span> {stage.title}
                         </h3>
                         
                         <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(stage.status)}`}>
