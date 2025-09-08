@@ -109,28 +109,52 @@ export const AllUnits: React.FC = () => {
 
       if (unitsError) throw unitsError;
 
-      // Fetch projects summary
+      // Fetch projects summary (simplified)
       const { data: projectsData, error: projectsError } = await supabase
         .from('projects')
-        .select(`
-          id,
-          name,
-          city,
-          neighborhood,
-          buildings!inner (
-            apartments(count)
-          )
-        `)
+        .select('id, name, city, neighborhood')
         .order('name');
 
       if (projectsError) throw projectsError;
 
-      // Process projects data to include unit counts
-      const processedProjects = projectsData?.map(project => ({
-        ...project,
-        total_units: project.buildings?.reduce((sum: number, building: any) => 
-          sum + (building.apartments?.[0]?.count || 0), 0) || 0
-      })) || [];
+      // Count units for each project separately
+      const processedProjects = await Promise.all(
+        (projectsData || []).map(async (project) => {
+          // Get buildings for this project
+          const { data: buildings } = await supabase
+            .from('buildings')
+            .select('id')
+            .eq('project_id', project.id);
+          
+          if (!buildings || buildings.length === 0) {
+            return { ...project, total_units: 0 };
+          }
+          
+          // Get floors for these buildings
+          const buildingIds = buildings.map(b => b.id);
+          const { data: floors } = await supabase
+            .from('floors')
+            .select('id')
+            .in('building_id', buildingIds);
+          
+          if (!floors || floors.length === 0) {
+            return { ...project, total_units: 0 };
+          }
+          
+          // Count apartments for these floors
+          const floorIds = floors.map(f => f.id);
+          const { count } = await supabase
+            .from('apartments')
+            .select('*', { count: 'exact', head: true })
+            .in('floor_id', floorIds)
+            .eq('is_active', true);
+          
+          return {
+            ...project,
+            total_units: count || 0
+          };
+        })
+      );
 
       setUnits(unitsData || []);
       setProjects(processedProjects);
