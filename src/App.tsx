@@ -26,6 +26,8 @@ const StagesManagement = lazy(() => import('./pages/StagesManagement').then(modu
 const Users = lazy(() => import('./pages/Users').then(module => ({ default: module.Users })));
 const Files = lazy(() => import('./pages/FilesHierarchy').then(module => ({ default: module.FilesHierarchy })));
 const GlobalSearch = lazy(() => import('./pages/GlobalSearch').then(module => ({ default: module.GlobalSearch })));
+const ProjectApartments = lazy(() => import('./pages/ProjectApartments').then(module => ({ default: module.ProjectApartments })));
+const ProjectFloors = lazy(() => import('./pages/ProjectFloors').then(module => ({ default: module.ProjectFloors })));
 
 // Fast loading component
 const AppLoadingScreen = () => {
@@ -147,6 +149,20 @@ function App() {
               <ProtectedRoute resource="projects">
                 <Suspense fallback={<PageLoadingScreen />}>
                   <ProjectDetails />
+                </Suspense>
+              </ProtectedRoute>
+            } />
+            <Route path="projects/:projectId/apartments" element={
+              <ProtectedRoute resource="apartments">
+                <Suspense fallback={<PageLoadingScreen />}>
+                  <ProjectApartments />
+                </Suspense>
+              </ProtectedRoute>
+            } />
+            <Route path="projects/:projectId/floors" element={
+              <ProtectedRoute resource="floors">
+                <Suspense fallback={<PageLoadingScreen />}>
+                  <ProjectFloors />
                 </Suspense>
               </ProtectedRoute>
             } />

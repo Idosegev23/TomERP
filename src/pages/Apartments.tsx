@@ -606,6 +606,7 @@ export const Apartments: React.FC = () => {
       case 'penthouse': return 'פנטהאוז';
       case 'duplex': return 'דופלקס';
       case 'garden': return 'דירת גן';
+      case 'ground_floor': return 'דירת קרקע';
       case 'mini_penthouse': return 'מיני פנטהאוז';
       default: return type;
     }
@@ -779,6 +780,7 @@ export const Apartments: React.FC = () => {
                 <option value="penthouse">פנטהאוז</option>
                 <option value="duplex">דופלקס</option>
                 <option value="garden">דירת גן</option>
+                <option value="ground_floor">דירת קרקע</option>
                 <option value="mini_penthouse">מיני פנטהאוז</option>
               </select>
             </div>
@@ -1050,6 +1052,7 @@ export const Apartments: React.FC = () => {
                       <option value="penthouse">פנטהאוז</option>
                       <option value="duplex">דופלקס</option>
                       <option value="garden">דירת גן</option>
+                      <option value="ground_floor">דירת קרקע</option>
                       <option value="mini_penthouse">מיני פנטהאוז</option>
                     </select>
                   </div>
@@ -1086,7 +1089,7 @@ export const Apartments: React.FC = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {formData.apartment_type === 'garden' || (floor && floor.floor_number === 0) 
+                      {formData.apartment_type === 'garden' || formData.apartment_type === 'ground_floor' || (floor && floor.floor_number === 0) 
                         ? '🌳 שטח גינה (מ"ר)' 
                         : '🏢 שטח מרפסת (מ"ר)'}
                     </label>
@@ -1096,7 +1099,7 @@ export const Apartments: React.FC = () => {
                       value={formData.garden_balcony_area}
                       onChange={(e) => setFormData({ ...formData, garden_balcony_area: e.target.value })}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder={formData.apartment_type === 'garden' || (floor && floor.floor_number === 0) 
+                      placeholder={formData.apartment_type === 'garden' || formData.apartment_type === 'ground_floor' || (floor && floor.floor_number === 0) 
                         ? 'שטח הגינה במ"ר' 
                         : 'שטח המרפסת במ"ר'}
                     />

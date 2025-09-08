@@ -22,6 +22,12 @@ interface ProjectFormData {
   completion_date: string;
   marketing_start_date: string;
   project_status: string;
+  // Building & units auto-creation fields
+  create_building: boolean;
+  building_name: string;
+  total_floors: number;
+  has_ground_floor: boolean;
+  apartments_per_floor: number;
 }
 
 interface TaskTemplate {
@@ -64,7 +70,13 @@ const Projects: React.FC = () => {
     start_date: '',
     completion_date: '',
     marketing_start_date: '',
-    project_status: 'planning'
+    project_status: 'planning',
+    // Building & units auto-creation defaults
+    create_building: true,
+    building_name: '',
+    total_floors: 4,
+    has_ground_floor: true,
+    apartments_per_floor: 4
   });
 
   useEffect(() => {
@@ -182,6 +194,11 @@ const Projects: React.FC = () => {
         if (selectedTaskTemplates.length > 0) {
           await createTasksFromTemplates(projectId, selectedTaskTemplates);
         }
+
+        // Create building and apartments if requested
+        if (formData.create_building) {
+          await createBuildingAndApartments(projectId);
+        }
       }
 
       // Reset form and refetch data
@@ -203,6 +220,94 @@ const Projects: React.FC = () => {
     }
   };
 
+  const createBuildingAndApartments = async (projectId: string) => {
+    try {
+      const buildingName = formData.building_name.trim() || `${formData.name} - בניין ראשי`;
+      
+      // Calculate total units
+      const totalFloorsToCreate = formData.has_ground_floor ? formData.total_floors + 1 : formData.total_floors;
+      const totalUnits = totalFloorsToCreate * formData.apartments_per_floor;
+
+      // Create building
+      const { data: building, error: buildingError } = await supabase
+        .from('buildings')
+        .insert([{
+          name: buildingName,
+          project_id: projectId,
+          total_floors: totalFloorsToCreate,
+          total_units: totalUnits
+        }])
+        .select()
+        .single();
+
+      if (buildingError) throw buildingError;
+
+      // Create floors
+      const floors = [];
+      if (formData.has_ground_floor) {
+        // Ground floor (0) + regular floors (1,2,3...)
+        for (let i = 0; i <= formData.total_floors; i++) {
+          floors.push({
+            building_id: building.id,
+            floor_number: i,
+            floor_type: i === 0 ? 'ground' : 'regular',
+            total_units: formData.apartments_per_floor
+          });
+        }
+      } else {
+        // Only regular floors (1,2,3...)
+        for (let i = 1; i <= formData.total_floors; i++) {
+          floors.push({
+            building_id: building.id,
+            floor_number: i,
+            floor_type: 'regular',
+            total_units: formData.apartments_per_floor
+          });
+        }
+      }
+
+      const { data: createdFloors, error: floorsError } = await supabase
+        .from('floors')
+        .insert(floors)
+        .select();
+
+      if (floorsError) throw floorsError;
+
+      // Create apartments for each floor
+      const apartments = [];
+      for (const floor of createdFloors) {
+        for (let apartmentNum = 1; apartmentNum <= formData.apartments_per_floor; apartmentNum++) {
+          apartments.push({
+            building_id: building.id,
+            floor_id: floor.id,
+            project_id: projectId,
+            unit_number: `${floor.floor_number}${apartmentNum.toString().padStart(2, '0')}`,
+            floor_number: floor.floor_number,
+            room_count: 3, // Default
+            size_sqm: 80, // Default
+            status: 'available',
+            price: 0,
+            directions: ['צפון'], // Default
+            has_balcony: true,
+            balcony_sqm: 10 // Default
+          });
+        }
+      }
+
+      const { error: apartmentsError } = await supabase
+        .from('apartments')
+        .insert(apartments);
+
+      if (apartmentsError) throw apartmentsError;
+
+      toast.success(`נוצרו ${formData.total_floors} קומות עם ${apartments.length} דירות!`);
+    } catch (error: any) {
+      console.error('Error creating building and apartments:', error);
+      toast.error(`שגיאה ביצירת הבניין והדירות: ${error.message}`);
+      // Don't throw to avoid breaking the project creation flow
+    }
+  };
+
   const handleEdit = (project: Project) => {
     setEditingProject(project);
     setFormData({
@@ -215,7 +320,13 @@ const Projects: React.FC = () => {
       start_date: project.start_date || '',
       completion_date: project.completion_date || '',
       marketing_start_date: project.marketing_start_date || '',
-      project_status: project.project_status || 'planning'
+      project_status: project.project_status || 'planning',
+      // These fields are not used in edit mode
+      create_building: false,
+      building_name: '',
+      total_floors: 4,
+      has_ground_floor: true,
+      apartments_per_floor: 4
     });
     setShowForm(true);
   };
@@ -254,7 +365,13 @@ const Projects: React.FC = () => {
       start_date: '',
       completion_date: '',
       marketing_start_date: '',
-      project_status: 'planning'
+      project_status: 'planning',
+      // Building & units auto-creation defaults
+      create_building: true,
+      building_name: '',
+      total_floors: 4,
+      has_ground_floor: true,
+      apartments_per_floor: 4
     });
   };
 
@@ -501,6 +618,109 @@ const Projects: React.FC = () => {
                 </select>
               </div>
             </div>
+
+            {/* Building & Apartments Auto-Creation - Only for new projects */}
+            {!editingProject && (
+              <div className="border-t pt-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Building className="h-5 w-5 text-blue-600" />
+                  <h3 className="text-lg font-medium text-gray-900">יצירת בניין ודירות אוטומטית</h3>
+                </div>
+                
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.create_building}
+                      onChange={(e) => setFormData({ ...formData, create_building: e.target.checked })}
+                      className="h-4 w-4 text-blue-600 rounded"
+                    />
+                    <span className="text-sm font-medium text-blue-800">
+                      צור בניין ודירות אוטומטית עם יצירת הפרויקט
+                    </span>
+                  </label>
+                  <p className="text-xs text-blue-600 mt-2 mr-7">
+                    פעולה זו תיצור בניין עם קומות ודירות לפי ההגדרות שלהלן
+                  </p>
+                </div>
+
+                {formData.create_building && (
+                  <div className="space-y-4 border border-gray-200 rounded-lg p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          שם הבניין
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.building_name}
+                          onChange={(e) => setFormData({ ...formData, building_name: e.target.value })}
+                          placeholder={`${formData.name} - בניין ראשי`}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">אם ריק, יש שם אוטומטי</p>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          מספר קומות
+                        </label>
+                        <select
+                          value={formData.total_floors}
+                          onChange={(e) => setFormData({ ...formData, total_floors: parseInt(e.target.value) })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                          {[...Array(20)].map((_, i) => (
+                            <option key={i+1} value={i+1}>{i+1} קומות</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          דירות בכל קומה
+                        </label>
+                        <select
+                          value={formData.apartments_per_floor}
+                          onChange={(e) => setFormData({ ...formData, apartments_per_floor: parseInt(e.target.value) })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                          {[1,2,3,4,5,6,8,10].map(num => (
+                            <option key={num} value={num}>{num} דירות</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={formData.has_ground_floor}
+                            onChange={(e) => setFormData({ ...formData, has_ground_floor: e.target.checked })}
+                            className="h-4 w-4 text-blue-600 rounded"
+                          />
+                          <span className="text-sm text-gray-700">
+                            כולל קומת קרקע (קומה 0)
+                          </span>
+                        </label>
+                        <p className="text-xs text-gray-500 mr-6 mt-1">
+                          קומת קרקע תסומן כקומה 0, השאר כ-1,2,3...
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="bg-gray-50 rounded p-3">
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">סיכום:</h4>
+                      <div className="text-sm text-gray-600 space-y-1">
+                        <div>📊 סה"כ קומות: {formData.has_ground_floor ? formData.total_floors + 1 : formData.total_floors}</div>
+                        <div>🏠 סה"כ דירות: {(formData.has_ground_floor ? formData.total_floors + 1 : formData.total_floors) * formData.apartments_per_floor}</div>
+                        <div>🔢 טווח קומות: {formData.has_ground_floor ? '0' : '1'} - {formData.total_floors}</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Task Templates Selection - Only for new projects */}
             {!editingProject && (

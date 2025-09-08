@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowRight, Building, Building2, MapPin, Calendar, Users, CheckSquare2, Settings, Plus } from 'lucide-react';
+import { ArrowRight, Building, Building2, MapPin, Calendar, Users, CheckSquare2, Settings, Plus, Home, Layers, FileText } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { TaskViews } from '../components/tasks';
 import { useTasks } from '../hooks/useTasks';
+import { Breadcrumbs } from '../components/common/Breadcrumbs';
 
 interface Project {
   id: string;
@@ -192,20 +193,9 @@ const ProjectDetails: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Header with breadcrumb */}
-        <div className="mb-6">
-          <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
-            <button
-              onClick={() => navigate('/projects')}
-              className="hover:text-blue-600 transition-colors"
-            >
-              פרויקטים
-            </button>
-            <ArrowRight className="h-4 w-4 rotate-180" />
-            <span className="text-gray-900 font-medium">{project.name}</span>
-          </div>
-        </div>
-
+        {/* Breadcrumbs */}
+        <Breadcrumbs />
+        
         {/* Project Info Header */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div className="flex items-start justify-between">
@@ -294,6 +284,53 @@ const ProjectDetails: React.FC = () => {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Context Switcher */}
+        <div className="bg-white rounded-lg shadow-sm p-1 mb-6">
+          <div className="flex items-center gap-1">
+            <button
+              className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg font-medium"
+            >
+              <Building2 className="h-4 w-4" />
+              כללי
+            </button>
+            <button
+              onClick={() => navigate(`/projects/${projectId}/apartments`)}
+              className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <Home className="h-4 w-4" />
+              דירות
+            </button>
+            <button
+              onClick={() => navigate(`/projects/${projectId}/floors`)}
+              className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <Layers className="h-4 w-4" />
+              קומות
+            </button>
+            <button
+              onClick={() => navigate(`/projects/${projectId}/buildings`)}
+              className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <Building className="h-4 w-4" />
+              בניינים
+            </button>
+            <button
+              onClick={() => navigate(`/tasks?project=${projectId}`)}
+              className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <CheckSquare2 className="h-4 w-4" />
+              משימות
+            </button>
+            <button
+              onClick={() => navigate(`/files?project=${projectId}`)}
+              className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <FileText className="h-4 w-4" />
+              קבצים
+            </button>
+          </div>
         </div>
 
         {/* Project Statistics & Quick Actions */}

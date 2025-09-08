@@ -23,6 +23,7 @@ import {
   ArrowDown,
   Calendar,
   ChartBar,
+  Search,
   Bug
 } from 'lucide-react';
 import { useAuth } from '../components/auth/AuthContext';
@@ -237,7 +238,7 @@ export const Dashboard: React.FC = () => {
       color: 'text-green-600',
       bgColor: 'bg-green-50',
       hoverColor: 'hover:bg-green-100',
-      clickPath: '/apartments',
+      clickPath: '/units',
       description: 'נהל את כל הדירות'
     },
     {
@@ -339,18 +340,32 @@ export const Dashboard: React.FC = () => {
                 משימות
               </button>
               <button
-                onClick={() => navigate('/apartments')}
+                onClick={() => navigate('/units')}
                 className="inline-flex items-center gap-2 px-3 py-1 bg-white rounded-full text-sm text-green-700 hover:bg-green-50 transition-colors border border-green-200"
               >
                 <Home className="h-4 w-4" />
                 דירות
               </button>
               <button
-                onClick={() => navigate('/analytics')}
+                onClick={() => navigate('/tasks/stages')}
                 className="inline-flex items-center gap-2 px-3 py-1 bg-white rounded-full text-sm text-purple-700 hover:bg-purple-50 transition-colors border border-purple-200"
               >
-                <BarChart3 className="h-4 w-4" />
-                דוחות
+                <Target className="h-4 w-4" />
+                שלבים
+              </button>
+              <button
+                onClick={() => navigate('/files')}
+                className="inline-flex items-center gap-2 px-3 py-1 bg-white rounded-full text-sm text-indigo-700 hover:bg-indigo-50 transition-colors border border-indigo-200"
+              >
+                <FileText className="h-4 w-4" />
+                קבצים
+              </button>
+              <button
+                onClick={() => navigate('/search')}
+                className="inline-flex items-center gap-2 px-3 py-1 bg-white rounded-full text-sm text-gray-700 hover:bg-gray-50 transition-colors border border-gray-200"
+              >
+                <Search className="h-4 w-4" />
+                חיפוש
               </button>
             </div>
             
