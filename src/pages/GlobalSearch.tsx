@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../components/auth/AuthContext';
 import { FileViewModal } from '../components/files/FileViewModal';
+import { Breadcrumbs } from '../components/common/Breadcrumbs';
 import toast from 'react-hot-toast';
 
 interface SearchResult {
@@ -395,16 +396,43 @@ export const GlobalSearch: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-4" dir="rtl">
       <div className="max-w-6xl mx-auto">
+        {/* Breadcrumbs */}
+        <Breadcrumbs />
+        
         {/* Header */}
         <div className="mb-6">
-          <div className="flex items-center gap-3 mb-4">
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">חיפוש גלובלי</h1>
+          
+          {/* Quick Actions */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
             <button
-              onClick={() => navigate(-1)}
-              className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+              onClick={() => navigate('/units?status=available')}
+              className="flex items-center gap-2 p-3 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors"
             >
-              <ArrowRight className="h-5 w-5" />
+              <Home className="h-4 w-4" />
+              <span className="text-sm font-medium">דירות זמינות</span>
             </button>
-            <h1 className="text-2xl font-bold text-gray-900">חיפוש גלובלי</h1>
+            <button
+              onClick={() => navigate('/tasks?status=urgent')}
+              className="flex items-center gap-2 p-3 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors"
+            >
+              <Search className="h-4 w-4" />
+              <span className="text-sm font-medium">משימות דחופות</span>
+            </button>
+            <button
+              onClick={() => navigate('/projects?status=marketing')}
+              className="flex items-center gap-2 p-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors"
+            >
+              <Building className="h-4 w-4" />
+              <span className="text-sm font-medium">פרויקטים בשיווק</span>
+            </button>
+            <button
+              onClick={() => navigate('/files?recent=true')}
+              className="flex items-center gap-2 p-3 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors"
+            >
+              <FileText className="h-4 w-4" />
+              <span className="text-sm font-medium">קבצים אחרונים</span>
+            </button>
           </div>
           
           {/* Search Bar */}

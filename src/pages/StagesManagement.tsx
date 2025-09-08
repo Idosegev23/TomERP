@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { Breadcrumbs } from '../components/common/Breadcrumbs';
 import { 
   Target, 
   Search, 
@@ -360,25 +361,8 @@ export const StagesManagement: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-6" dir="rtl">
-      {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-sm text-gray-600 mb-6">
-        <button
-          onClick={() => navigate('/')}
-          className="hover:text-blue-600 flex items-center gap-1"
-        >
-          <Home className="h-4 w-4" />
-          דף הבית
-        </button>
-        <ChevronRight className="h-4 w-4" />
-        <button
-          onClick={() => navigate('/tasks')}
-          className="hover:text-blue-600"
-        >
-          שלבים ומשימות
-        </button>
-        <ChevronRight className="h-4 w-4" />
-        <span className="text-gray-900 font-medium">🎯 ניהול שלבים</span>
-      </nav>
+      {/* Breadcrumbs */}
+      <Breadcrumbs />
 
       {/* Enhanced Header */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 mb-8 border border-blue-100">

@@ -20,7 +20,7 @@ const ProjectDetails = lazy(() => import('./pages/ProjectDetails'));
 const Buildings = lazy(() => import('./pages/Buildings').then(module => ({ default: module.Buildings })));
 const Floors = lazy(() => import('./pages/Floors').then(module => ({ default: module.Floors })));
 const Apartments = lazy(() => import('./pages/Apartments').then(module => ({ default: module.Apartments })));
-const Units = lazy(() => import('./pages/Units').then(module => ({ default: module.Units })));
+const AllUnits = lazy(() => import('./pages/AllUnits').then(module => ({ default: module.AllUnits })));
 const Tasks = lazy(() => import('./pages/Tasks').then(module => ({ default: module.Tasks })));
 const StagesManagement = lazy(() => import('./pages/StagesManagement').then(module => ({ default: module.StagesManagement })));
 const Users = lazy(() => import('./pages/Users').then(module => ({ default: module.Users })));
@@ -191,7 +191,7 @@ function App() {
             {/* Other routes */}
             <Route path="units" element={
               <Suspense fallback={<PageLoadingScreen />}>
-                <Units />
+                <AllUnits />
               </Suspense>
             } />
             <Route path="tasks" element={

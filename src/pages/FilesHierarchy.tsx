@@ -5,6 +5,7 @@ import {
   FileText, Image, Video, Music, Archive, Plus
 } from 'lucide-react';
 import { useAuth } from '../components/auth/AuthContext';
+import { Breadcrumbs } from '../components/common/Breadcrumbs';
 import { Card, CardContent } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { FileUploadModal } from '../components/files/FileUploadModal';
@@ -250,6 +251,9 @@ export const FilesHierarchy: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Breadcrumbs */}
+      <Breadcrumbs />
+      
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-900">קבצים עם גרסאות</h1>
         <Button

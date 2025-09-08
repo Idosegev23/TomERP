@@ -4,6 +4,7 @@ import { Plus, Edit, Trash2, Building, MapPin, Calendar, Users, CheckSquare2, Ex
 import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
 import { FileUploadModal } from '../components/files';
+import { Breadcrumbs } from '../components/common/Breadcrumbs';
 import toast from 'react-hot-toast';
 import type { Database } from '../types/database.types';
 
@@ -428,6 +429,9 @@ const Projects: React.FC = () => {
 
   return (
           <div className="w-full">
+      {/* Breadcrumbs */}
+      <Breadcrumbs />
+      
       {/* Header */}
       <div className="bg-white shadow-sm px-2 py-3">
         <div className="flex items-center justify-between">
